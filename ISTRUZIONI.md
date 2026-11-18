@@ -1,6 +1,17 @@
+
+# Se sei un essere umano
+
+La cosa più facile è aprire il sito e provarlo con mano, dovrebbe essere tutto intuitivo e pratico. Se non ti torna qualcosa o hai consigli su come migliorare il sito scrivimi su instagram, sono curioso di avere vostri feedback: @andrea_antognetti
+
+Qui sotto invece trovi tutte le spiegazioni tecniche su come funzionano i vari pulsanti. Possono essere utili in caso volessi farti aiutare da un AI a fare i caroselli (come faccio io con Claude). In quel caso fagli leggere questo file e saprà come muoversi sulla pagina.
+
+Ciaoooooo
+
+
 # Editor caroselli
 
 Apri `editor.html` con Chrome (doppio clic, o trascinalo su una finestra di Chrome). Serve internet solo per il font e per l'esportazione.
+
 
 ## Come si usa
 
