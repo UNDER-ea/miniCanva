@@ -239,7 +239,7 @@ dialog h3 { margin-bottom:14px; font-size:18px; font-weight:800; letter-spacing:
      SCHERMATA PER IL TELEFONO (provvisoria, finché l'editor non sarà adattato agli schermi piccoli).
      Resta nascosta su computer e tablet; la classe "telefono" sul tag <html> (impostata nello script in cima)
      la mostra e nasconde tutto il resto dell'editor.
-     Dentro c'è una "immagine meme" (disegno in SVG + due scritte con il contorno nero, come nei meme classici)
+     Dentro c'è un meme (la foto assets/meme_telefono.jpg + due scritte con il contorno nero, una sopra e una sotto, come nei meme classici)
      e sotto uno screenshot dell'editor aperto da computer (assets/anteprima_computer.jpg).
      ===================================================================== -->
 <style>
@@ -254,42 +254,31 @@ dialog h3 { margin-bottom:14px; font-size:18px; font-weight:800; letter-spacing:
     radial-gradient(800px 600px at -10% 115%, rgba(196,38,26,.34), transparent 62%),
     var(--ui-bg);
 }
-#soloComputer .meme { position:relative; width:100%; max-width:440px; aspect-ratio:1 / 1; border-radius:8px; overflow:hidden; flex:none;
+#soloComputer .meme { position:relative; width:100%; max-width:440px; aspect-ratio:4 / 5; border-radius:8px; overflow:hidden; flex:none;
   background:#3a342f; box-shadow:0 10px 30px rgba(0,0,0,.5); }
-#soloComputer .meme svg { position:absolute; inset:0; width:100%; height:100%; }
+/* La foto riempie tutto il riquadro (object-fit:cover, ritaglia ai lati se serve) e resta centrata sulla persona (72% da sinistra). */
+#soloComputer .meme img.foto { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:72% 50%; }
 /* Scritte da meme: maiuscolo, bianco, molto spesso, con il contorno nero fatto con 8 ombre (funziona su tutti i telefoni).
-   La grandezza segue la larghezza dello schermo (7vw) ma non supera mai 32px. */
+   La grandezza segue la larghezza dello schermo (6.4vw) ma non supera mai 30px. Una scritta sopra e una sotto, come nei meme classici. */
 #soloComputer .meme p { position:absolute; left:4%; right:4%; text-align:center; text-transform:uppercase; font-weight:900;
-  font-size:min(7vw, 32px); line-height:1.06; letter-spacing:.01em; color:#fff;
+  font-size:min(6.4vw, 30px); line-height:1.08; letter-spacing:.01em; color:#fff;
   text-shadow:-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 -2px 0 #000, 0 2px 0 #000, -2px 0 0 #000, 2px 0 0 #000, 0 4px 6px rgba(0,0,0,.5); }
-#soloComputer .meme .alto { top:3.5%; }
-#soloComputer .meme .basso { bottom:3.5%; }
+#soloComputer .meme .alto { top:3%; }
+#soloComputer .meme .basso { bottom:3%; }
+/* Le parole evidenziate dentro il meme (come nei caroselli) sono dell'oro UNDER, lo stesso di "evidenzia" in IMPOSTAZIONI_DEFAULT. */
+#soloComputer .meme .giallo { color:#e8c060; }
+/* Frase piccola sotto il meme: testo normale, non titolo. */
+#soloComputer .didascalia { font-size:16px; font-weight:500; color:var(--ui-testo); text-align:center; flex:none; }
 #soloComputer .anteprima { width:100%; max-width:440px; height:auto; border-radius:10px; border:1px solid var(--ui-bordo-forte); flex:none;
   box-shadow:0 10px 30px rgba(0,0,0,.5); }
 </style>
 <div id="soloComputer" role="alert">
   <div class="meme">
-    <!-- Disegno: un telefono con la faccia confusa, in oro UNDER, su un fondo grigio cemento. Misure in un quadrato 400 per 400. -->
-    <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs><radialGradient id="memeFondo" cx="50%" cy="48%" r="75%"><stop offset="0" stop-color="#5f574f"/><stop offset="1" stop-color="#2f2a26"/></radialGradient></defs>
-      <rect width="400" height="400" fill="url(#memeFondo)"/>
-      <!-- telefono -->
-      <rect x="146" y="118" width="108" height="176" rx="20" fill="#181514" stroke="#e8c060" stroke-width="7"/>
-      <rect x="156" y="136" width="88" height="140" rx="8" fill="#221e1c"/>
-      <circle cx="200" cy="284" r="3.5" fill="#e8c060"/>
-      <!-- occhi: due X -->
-      <g stroke="#e8c060" stroke-width="5" stroke-linecap="round">
-        <path d="M171 172 l16 16 M187 172 l-16 16"/>
-        <path d="M213 172 l16 16 M229 172 l-16 16"/>
-      </g>
-      <!-- bocca storta -->
-      <path d="M172 232 q7 -10 14 0 t14 0 t14 0" fill="none" stroke="#e8c060" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-      <!-- goccia di sudore -->
-      <path d="M268 130 q12 18 0 28 q-12 -10 0 -28 z" fill="#9ed0ff" stroke="#e8c060" stroke-width="2"/>
-    </svg>
-    <p class="alto">Da telefono non funziona ancora</p>
-    <p class="basso">Devi aprire il link da computer</p>
+    <img class="foto" src="assets/meme_telefono.jpg" alt="">
+    <p class="alto">Da telefono il sito non funziona ancora</p>
+    <p class="basso">Se vuoi usarlo (per ora) devi aprire il link <span class="giallo">da computer</span></p>
   </div>
+  <p class="didascalia">Guarda che figata🤤</p>
   <img class="anteprima" src="assets/anteprima_computer.jpg" alt="Come si vede l'editor aperto da computer">
 </div>
 
