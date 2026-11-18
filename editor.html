@@ -254,17 +254,16 @@ dialog h3 { margin-bottom:14px; font-size:18px; font-weight:800; letter-spacing:
     radial-gradient(800px 600px at -10% 115%, rgba(196,38,26,.34), transparent 62%),
     var(--ui-bg);
 }
-#soloComputer .meme { position:relative; width:100%; max-width:440px; aspect-ratio:4 / 5; border-radius:8px; overflow:hidden; flex:none;
-  background:#3a342f; box-shadow:0 10px 30px rgba(0,0,0,.5); }
-/* La foto riempie tutto il riquadro (object-fit:cover, ritaglia ai lati se serve) e resta centrata sulla persona (72% da sinistra). */
-#soloComputer .meme img.foto { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:72% 50%; }
+#soloComputer .meme { position:relative; width:100%; max-width:440px; border-radius:8px; overflow:hidden; flex:none;
+  display:flex; flex-direction:column; background:#000; box-shadow:0 10px 30px rgba(0,0,0,.5); }
+/* La foto sta in mezzo, in formato 4 a 3, e non viene coperta da niente: le scritte stanno nelle due fasce nere sopra e sotto.
+   object-fit:cover ritaglia un po' ai lati se serve e object-position (75% da sinistra) tiene al centro la persona. */
+#soloComputer .meme img.foto { display:block; width:100%; aspect-ratio:4 / 3; object-fit:cover; object-position:75% 50%; }
 /* Scritte da meme: maiuscolo, bianco, molto spesso, con il contorno nero fatto con 8 ombre (funziona su tutti i telefoni).
    La grandezza segue la larghezza dello schermo (6.4vw) ma non supera mai 30px. Una scritta sopra e una sotto, come nei meme classici. */
-#soloComputer .meme p { position:absolute; left:4%; right:4%; text-align:center; text-transform:uppercase; font-weight:900;
+#soloComputer .meme p { padding:12px 4%; text-align:center; text-transform:uppercase; font-weight:900;
   font-size:min(6.4vw, 30px); line-height:1.08; letter-spacing:.01em; color:#fff;
-  text-shadow:-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 -2px 0 #000, 0 2px 0 #000, -2px 0 0 #000, 2px 0 0 #000, 0 4px 6px rgba(0,0,0,.5); }
-#soloComputer .meme .alto { top:3%; }
-#soloComputer .meme .basso { bottom:3%; }
+  text-shadow:-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 -2px 0 #000, 0 2px 0 #000, -2px 0 0 #000, 2px 0 0 #000; }
 /* Le parole evidenziate dentro il meme (come nei caroselli) sono dell'oro UNDER, lo stesso di "evidenzia" in IMPOSTAZIONI_DEFAULT. */
 #soloComputer .meme .giallo { color:#e8c060; }
 /* Frase piccola sotto il meme: testo normale, non titolo. */
@@ -274,11 +273,11 @@ dialog h3 { margin-bottom:14px; font-size:18px; font-weight:800; letter-spacing:
 </style>
 <div id="soloComputer" role="alert">
   <div class="meme">
-    <img class="foto" src="assets/meme_telefono.jpg" alt="">
     <p class="alto">Da telefono il sito non funziona ancora</p>
-    <p class="basso">Se vuoi usarlo (per ora) devi aprire il link <span class="giallo">da computer</span></p>
+    <img class="foto" src="assets/meme_telefono.jpg" alt="">
+    <p class="basso">Se vuoi usarlo apri il link <span class="giallo">da computer</span></p>
   </div>
-  <p class="didascalia">Guarda che figata🤤</p>
+  <p class="didascalia">Presto funzionerà anche da telefono.<br>Intanto, guarda che figata🤤</p>
   <img class="anteprima" src="assets/anteprima_computer.jpg" alt="Come si vede l'editor aperto da computer">
 </div>
 
