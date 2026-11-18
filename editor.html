@@ -4,6 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Editor caroselli</title>
+<script>
+/* Riconoscimento del telefono (messo qui, prima di tutto il resto, per non far vedere nemmeno per un attimo l'editor).
+   L'editor è pensato per il computer: da telefono non è ancora adattato, quindi al suo posto si mostra la schermata
+   "#soloComputer" (vedi più sotto, subito dopo <body>). Si considera telefono quando:
+   - il lato più corto dello schermo è sotto i 600 pixel (un tablet o un computer stanno sopra), e
+   - il dispositivo si usa con il dito e non con il mouse (pointer: coarse).
+   Per provare la schermata dal computer basta aggiungere ?telefono=1 all'indirizzo, ad esempio editor.html?telefono=1.
+   Quando l'editor sarà adattato ai telefoni basta cancellare questo blocco e la schermata #soloComputer. */
+(function () {
+  var forzato = /[?&]telefono=1(&|$)/.test(location.search);
+  var schermoPiccolo = Math.min(screen.width, screen.height) < 600;
+  var colDito = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  if (forzato || (schermoPiccolo && colDito)) document.documentElement.classList.add('telefono');
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
@@ -219,6 +234,64 @@ dialog h3 { margin-bottom:14px; font-size:18px; font-weight:800; letter-spacing:
 </style>
 </head>
 <body>
+
+<!-- =====================================================================
+     SCHERMATA PER IL TELEFONO (provvisoria, finché l'editor non sarà adattato agli schermi piccoli).
+     Resta nascosta su computer e tablet; la classe "telefono" sul tag <html> (impostata nello script in cima)
+     la mostra e nasconde tutto il resto dell'editor.
+     Dentro c'è una "immagine meme" (disegno in SVG + due scritte con il contorno nero, come nei meme classici)
+     e sotto uno screenshot dell'editor aperto da computer (assets/anteprima_computer.jpg).
+     ===================================================================== -->
+<style>
+#soloComputer { display:none; }
+.telefono body > *:not(#soloComputer):not(script):not(style) { display:none !important; }   /* via tutto l'editor, tolto lo script */
+.telefono body { display:block; overflow:auto; height:auto; }
+.telefono #soloComputer {
+  display:flex; flex-direction:column; align-items:center; gap:16px;
+  position:fixed; inset:0; z-index:99999; overflow-y:auto; padding:16px 16px 28px;
+  background:
+    radial-gradient(900px 600px at 95% -15%, rgba(255,98,36,.40), transparent 64%),
+    radial-gradient(800px 600px at -10% 115%, rgba(196,38,26,.34), transparent 62%),
+    var(--ui-bg);
+}
+#soloComputer .meme { position:relative; width:100%; max-width:440px; aspect-ratio:1 / 1; border-radius:8px; overflow:hidden; flex:none;
+  background:#3a342f; box-shadow:0 10px 30px rgba(0,0,0,.5); }
+#soloComputer .meme svg { position:absolute; inset:0; width:100%; height:100%; }
+/* Scritte da meme: maiuscolo, bianco, molto spesso, con il contorno nero fatto con 8 ombre (funziona su tutti i telefoni).
+   La grandezza segue la larghezza dello schermo (7vw) ma non supera mai 32px. */
+#soloComputer .meme p { position:absolute; left:4%; right:4%; text-align:center; text-transform:uppercase; font-weight:900;
+  font-size:min(7vw, 32px); line-height:1.06; letter-spacing:.01em; color:#fff;
+  text-shadow:-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 -2px 0 #000, 0 2px 0 #000, -2px 0 0 #000, 2px 0 0 #000, 0 4px 6px rgba(0,0,0,.5); }
+#soloComputer .meme .alto { top:3.5%; }
+#soloComputer .meme .basso { bottom:3.5%; }
+#soloComputer .anteprima { width:100%; max-width:440px; height:auto; border-radius:10px; border:1px solid var(--ui-bordo-forte); flex:none;
+  box-shadow:0 10px 30px rgba(0,0,0,.5); }
+</style>
+<div id="soloComputer" role="alert">
+  <div class="meme">
+    <!-- Disegno: un telefono con la faccia confusa, in oro UNDER, su un fondo grigio cemento. Misure in un quadrato 400 per 400. -->
+    <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><radialGradient id="memeFondo" cx="50%" cy="48%" r="75%"><stop offset="0" stop-color="#5f574f"/><stop offset="1" stop-color="#2f2a26"/></radialGradient></defs>
+      <rect width="400" height="400" fill="url(#memeFondo)"/>
+      <!-- telefono -->
+      <rect x="146" y="118" width="108" height="176" rx="20" fill="#181514" stroke="#e8c060" stroke-width="7"/>
+      <rect x="156" y="136" width="88" height="140" rx="8" fill="#221e1c"/>
+      <circle cx="200" cy="284" r="3.5" fill="#e8c060"/>
+      <!-- occhi: due X -->
+      <g stroke="#e8c060" stroke-width="5" stroke-linecap="round">
+        <path d="M171 172 l16 16 M187 172 l-16 16"/>
+        <path d="M213 172 l16 16 M229 172 l-16 16"/>
+      </g>
+      <!-- bocca storta -->
+      <path d="M172 232 q7 -10 14 0 t14 0 t14 0" fill="none" stroke="#e8c060" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- goccia di sudore -->
+      <path d="M268 130 q12 18 0 28 q-12 -10 0 -28 z" fill="#9ed0ff" stroke="#e8c060" stroke-width="2"/>
+    </svg>
+    <p class="alto">Da telefono non funziona ancora</p>
+    <p class="basso">Devi aprire il link da computer</p>
+  </div>
+  <img class="anteprima" src="assets/anteprima_computer.jpg" alt="Come si vede l'editor aperto da computer">
+</div>
 
 <header>
   <h1>Editor caroselli</h1>
