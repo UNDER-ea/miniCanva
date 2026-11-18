@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor caroselli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* =====================================================================
+   PARTE 1: stile dell'EDITOR (la finestra con pannelli e pulsanti)
+   ===================================================================== */
+/* Palette: nero caldo con un bagliore arancio/rosso (come il riferimento), oro del logo UNDER per i comandi principali.
+   Contrasti controllati con Python (testo almeno 6:1 sul fondo, scritte secondarie almeno 5,9:1). */
+:root {
+  --ui-bg:#0e0c0b; --ui-pan:#181514; --ui-pan2:#221e1c; --ui-pan3:#2b2623;
+  --ui-bordo:#352e2a; --ui-bordo-forte:#7a7068;
+  --ui-testo:#f4efe6; --ui-tenue:#a39a8f;
+  --ui-acc:#e8c060; --ui-acc-hover:#f2d07c; --ui-acc-testo:#17130a;
+  --ui-caldo:#ff7a3d; --ui-pericolo:#ff8f7d;
+  --ui-raggio:10px;
+  /* grana sottile (generata con Python), serve solo a dare materia allo sfondo */
+  --ui-grana:url("data:image/png;base64,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");
+}
+* { box-sizing:border-box; margin:0; padding:0; scrollbar-width:thin; scrollbar-color:#4a423d transparent; }
+html, body { height:100%; }
+body { font-family:"Inter", -apple-system, "Helvetica Neue", Arial, sans-serif; font-size:14px; color:var(--ui-testo); display:flex; flex-direction:column; overflow:hidden;
+  background:
+    radial-gradient(1200px 800px at 95% -15%, rgba(255,98,36,.46), transparent 64%),
+    radial-gradient(1000px 700px at -10% 115%, rgba(196,38,26,.40), transparent 62%),
+    var(--ui-bg); }
+body::before { content:''; position:fixed; inset:0; background-image:var(--ui-grana); pointer-events:none; z-index:0; }
+header, main { position:relative; z-index:1; }
+
+header { display:flex; align-items:center; gap:8px; padding:10px 16px; background:rgba(22,19,18,.62); backdrop-filter:blur(14px); border-bottom:1px solid var(--ui-bordo); flex-wrap:wrap; position:relative; z-index:20; }
+header h1 { font-size:16px; font-weight:800; letter-spacing:-.02em; margin-right:12px; display:flex; align-items:center; }
+header h1::before { content:''; width:9px; height:9px; border-radius:50%; background:var(--ui-acc); margin-right:10px; box-shadow:0 0 14px rgba(232,192,96,.75); }
+header .spazio { flex:1; }
+#stato { color:var(--ui-tenue); font-size:12px; min-width:90px; text-align:right; margin-right:4px; }
+
+button, .bottone { font:inherit; font-weight:600; font-size:13px; border:1px solid var(--ui-bordo-forte); background:var(--ui-pan2); border-radius:var(--ui-raggio); padding:8px 13px; cursor:pointer; color:var(--ui-testo); transition:background .15s, border-color .15s, transform .05s; }
+button:hover { background:var(--ui-pan3); border-color:#9a8f85; }
+button:active { transform:translateY(1px); }
+button:focus-visible, .campo input:focus-visible, .campo textarea:focus-visible, .campo select:focus-visible { outline:2px solid var(--ui-acc); outline-offset:2px; }
+button:disabled { opacity:.5; cursor:progress; }
+button.primario { background:var(--ui-acc); border-color:var(--ui-acc); color:var(--ui-acc-testo); font-weight:700; }
+button.primario:hover { background:var(--ui-acc-hover); border-color:var(--ui-acc-hover); }
+button.piccolo { padding:4px 9px; font-size:12px; }
+button.pericolo { color:var(--ui-pericolo); border-color:rgba(255,143,125,.45); }
+button.pericolo:hover { background:rgba(255,143,125,.12); border-color:var(--ui-pericolo); }
+button.attivo { background:rgba(232,192,96,.16); color:var(--ui-acc); border-color:var(--ui-acc); }
+input[type=checkbox], input[type=range] { accent-color:var(--ui-acc); }
+
+/* menu a tendina in alto (File, Esporta) */
+.menu { position:relative; }
+.menu > button::after { content:'▾'; margin-left:7px; font-size:11px; opacity:.7; }
+.menu > button.avvisa::before { content:''; display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--ui-caldo); margin-right:8px; vertical-align:1px; }
+.tendina { display:none; position:absolute; right:0; top:calc(100% + 8px); min-width:250px; background:var(--ui-pan2); border:1px solid var(--ui-bordo-forte); border-radius:12px; padding:6px; box-shadow:0 18px 50px rgba(0,0,0,.65); z-index:60; }
+.menu.aperto .tendina { display:flex; flex-direction:column; gap:2px; }
+.tendina button { border:0; background:transparent; text-align:left; padding:9px 12px; border-radius:8px; font-weight:600; }
+.tendina button:hover { background:var(--ui-pan3); }
+.tendina button small { display:block; font-weight:500; font-size:11.5px; color:var(--ui-tenue); margin-top:1px; }
+.tendina hr { border:0; border-top:1px solid var(--ui-bordo); margin:4px 2px; }
+
+main { flex:1; display:grid; grid-template-columns:200px 1fr 350px; min-height:0; }
+aside { background:rgba(22,19,18,.64); backdrop-filter:blur(12px); overflow-y:auto; padding:14px; }
+#colSlide { border-right:1px solid var(--ui-bordo); }
+#colPannello { border-left:1px solid var(--ui-bordo); }
+aside h2 { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--ui-tenue); margin:20px 0 9px; }
+aside h2:first-child { margin-top:0; }
+
+/* colonna sinistra: miniature, che si riordinano trascinandole */
+.voce { margin-bottom:14px; position:relative; }
+.voce .mini { width:170px; height:212px; position:relative; overflow:hidden; border-radius:8px; border:2px solid var(--ui-bordo); cursor:grab; background:#222; transition:border-color .15s, box-shadow .15s; }
+.voce:hover .mini { border-color:var(--ui-bordo-forte); }
+.voce.corrente .mini { border-color:var(--ui-acc); box-shadow:0 0 0 3px rgba(232,192,96,.18), 0 8px 24px rgba(0,0,0,.5); }
+.voce .mini .sl { position:absolute; left:0; top:0; transform-origin:top left; transform:scale(.1574); pointer-events:none; }
+.voce .nome { font-size:12px; color:var(--ui-tenue); margin:6px 0 5px; display:flex; gap:6px; align-items:center; }
+.voce.corrente .nome { color:var(--ui-testo); }
+.voce .nome .presa { cursor:grab; opacity:.7; letter-spacing:-2px; }
+.voce .nome .testo { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.voce .azioni { display:flex; gap:4px; flex-wrap:wrap; }
+.voce .azioni { gap:3px; }
+.voce .azioni button { padding:4px 6px; font-size:11.5px; }
+.voce.trascinata { opacity:.35; }
+.voce.drop-sopra::before, .voce.drop-sotto::after { content:''; position:absolute; left:0; width:170px; height:4px; border-radius:2px; background:var(--ui-acc); box-shadow:0 0 12px rgba(232,192,96,.8); }
+.voce.drop-sopra::before { top:-9px; }
+.voce.drop-sotto::after { bottom:-9px; }
+
+/* centro: anteprima */
+#colCanvas { overflow:auto; display:flex; justify-content:center; align-items:flex-start; padding:22px; }
+#telaBox { position:relative; box-shadow:0 24px 70px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.07); border-radius:2px; flex:none; }
+#tela { position:absolute; left:0; top:0; width:1080px; height:1350px; transform-origin:top left; }
+
+/* colonna destra: pannello */
+.campo { display:block; margin:0 0 12px; }
+.campo > span { display:block; font-size:12px; color:var(--ui-tenue); margin-bottom:5px; }
+.campo input[type=text], .campo input[type=number], .campo textarea, .campo select { width:100%; font:inherit; color:var(--ui-testo); padding:8px 10px; border:1px solid var(--ui-bordo-forte); border-radius:8px; background:var(--ui-bg); transition:border-color .15s, box-shadow .15s; }
+.campo input:focus, .campo textarea:focus, .campo select:focus { outline:none; border-color:var(--ui-acc); box-shadow:0 0 0 3px rgba(232,192,96,.18); }
+.campo textarea { resize:vertical; }
+.gruppo { display:flex; gap:5px; flex-wrap:wrap; }
+.gruppo button { padding:6px 10px; font-size:12px; }
+.colori { display:flex; gap:7px; flex-wrap:wrap; }
+.colori .sw { width:30px; height:30px; border-radius:8px; border:2px solid rgba(255,255,255,.22); cursor:pointer; transition:transform .1s; }
+.colori .sw:hover { transform:scale(1.08); }
+.colori .sw.on { border-color:var(--ui-acc); box-shadow:0 0 0 2px var(--ui-bg) inset, 0 0 0 2px rgba(232,192,96,.25); }
+.riga2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.elenco { border:1px solid var(--ui-bordo); border-radius:10px; overflow:hidden; margin-bottom:12px; background:rgba(0,0,0,.18); }
+.elenco .el { display:flex; align-items:center; gap:5px; padding:6px 8px; border-bottom:1px solid var(--ui-bordo); cursor:pointer; font-size:12.5px; border-left:3px solid transparent; }
+.elenco .el:hover { background:rgba(255,255,255,.04); }
+.elenco .el:last-child { border-bottom:0; }
+.elenco .el.on { background:rgba(232,192,96,.12); border-left-color:var(--ui-acc); }
+.sezione { margin:20px 0 12px; }
+.sezione > summary { list-style:none; cursor:pointer; padding:9px 12px; border:1px solid var(--ui-bordo); border-radius:10px; background:rgba(0,0,0,.18); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--ui-testo); user-select:none; -webkit-user-select:none; }
+.sezione > summary::-webkit-details-marker { display:none; }
+.sezione > summary::before { content:'▸'; display:inline-block; width:16px; color:var(--ui-acc); }
+.sezione[open] > summary::before { content:'▾'; }
+.sezione > summary:hover { border-color:var(--ui-bordo-forte); background:rgba(255,255,255,.04); }
+.sezione[open] > summary { margin-bottom:12px; }
+/* lista elementi: si trascinano per cambiare l'ordine, una linea oro mostra dove finiscono */
+.elenco .el { cursor:grab; }
+.elenco .el.trascinata { opacity:.35; }
+.elenco .el.drop-sopra { box-shadow:inset 0 3px 0 var(--ui-acc); }
+.elenco .el.drop-sotto { box-shadow:inset 0 -3px 0 var(--ui-acc); }
+.elenco .el .t { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.elenco .el button { padding:1px 7px; font-size:11px; }
+.aggiungi { display:flex; gap:5px; flex-wrap:wrap; }
+.suggerimento { font-size:12.5px; color:var(--ui-tenue); line-height:1.5; margin-bottom:12px; background:rgba(232,192,96,.07); border:1px solid rgba(232,192,96,.2); padding:10px 12px; border-radius:10px; }
+.vuoto { color:var(--ui-tenue); font-size:12.5px; margin-bottom:8px; }
+
+dialog { margin:auto; border:1px solid var(--ui-bordo-forte); border-radius:16px; padding:22px; max-width:620px; width:92vw; max-height:90vh; overflow-y:auto; background:var(--ui-pan); color:var(--ui-testo); box-shadow:0 30px 90px rgba(0,0,0,.7); }
+dialog::backdrop { background:rgba(8,6,5,.66); backdrop-filter:blur(4px); }
+dialog h3 { margin-bottom:14px; font-size:18px; font-weight:800; letter-spacing:-.02em; }
+.griglia-template { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.griglia-template button { text-align:left; padding:16px; border-radius:12px; font-size:14px; }
+.griglia-template button:hover { border-color:var(--ui-acc); background:rgba(232,192,96,.08); }
+.griglia-template button b { display:block; margin-bottom:3px; }
+.griglia-template button span { font-size:12px; color:var(--ui-tenue); }
+.chiudi { margin-top:16px; text-align:right; }
+
+#fuori { position:fixed; left:0; top:0; z-index:-1; pointer-events:none; }
+#avviso { display:none; position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:100; background:var(--ui-pan3); color:var(--ui-testo); border:1px solid var(--ui-bordo-forte); padding:11px 14px 11px 16px; border-radius:12px; gap:16px; align-items:center; box-shadow:0 12px 40px rgba(0,0,0,.6); font-size:14px; }
+#avviso button { background:var(--ui-acc); color:var(--ui-acc-testo); border-color:var(--ui-acc); padding:5px 12px; font-weight:700; }
+
+/* =====================================================================
+   PARTE 2: stile delle SLIDE (quello che finisce nei PNG, 1080x1350).
+   I colori arrivano da variabili CSS impostate su ogni slide dalle Impostazioni.
+   ===================================================================== */
+.sl { width:1080px; height:1350px; position:relative; overflow:hidden; background:var(--fondo); color:var(--testo); font-family:"Inter","Helvetica Neue",Arial,sans-serif; }
+.sl * { box-sizing:border-box; margin:0; padding:0; }
+
+/* sfondo foto + velo scuro */
+.sl .sfondo-foto { position:absolute; inset:0; background-size:cover; background-position:center; }
+.sl .sfondo-vuoto { position:absolute; inset:0; background:linear-gradient(160deg,#1d2a36 0%,var(--fondo) 70%); }
+.sl .segnaposto-foto { position:absolute; left:90px; right:90px; top:330px; height:430px; border:5px dashed rgba(246,244,238,.4); display:flex; align-items:center; justify-content:center; text-align:center; font-size:44px; font-weight:700; color:rgba(246,244,238,.6); }
+.sl .velo { position:absolute; inset:0; background:linear-gradient(to bottom, rgba(0,0,0,.5) 0, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 38%, rgba(0,0,0,.9) 72%, rgba(0,0,0,.97) 100%); }
+
+/* il "flusso": i blocchi si dispongono uno sotto l'altro; i post-it a metà larghezza si affiancano */
+.sl .flusso { position:absolute; inset:0; padding:270px 90px 120px; display:flex; flex-wrap:wrap; gap:40px; align-content:center; }
+.sl[data-al="alto"] .flusso { align-content:flex-start; }
+.sl[data-al="basso"] .flusso { align-content:flex-end; padding-bottom:130px; }
+.sl .w-int { width:100%; }
+.sl .w-met { width:calc(50% - 20px); }
+
+.sl .b-titolo { font-weight:900; line-height:1; letter-spacing:-.03em; }
+.sl .b-testo { font-weight:600; line-height:1.25; color:var(--grigio); }
+.sl .ev { color:var(--evidenzia); }
+/* nei post-it la parola evidenziata cambia solo il colore del testo (niente sfondo): il giallo dei titoli non si legge sui colori chiari, quindi qui è un rosso (si cambia dalle impostazioni) */
+.sl .b-postit .ev { color:var(--evidenzia-postit); }
+
+/* post-it */
+.sl .b-postit { color:var(--inchiostro); font-weight:800; letter-spacing:-.025em; line-height:1.08; padding:.67em .74em;
+  box-shadow:0 20px 26px -14px rgba(0,0,0,.7), 0 2px 3px rgba(0,0,0,.25);
+  background-image:linear-gradient(to bottom, rgba(0,0,0,.08) 0, rgba(0,0,0,0) 38px); }
+.sl .b-postit small { display:block; font-size:.56em; font-weight:700; letter-spacing:0; margin-top:.28em; color:rgba(23,22,15,.62); }
+.sl .b-postit.quad { aspect-ratio:1 / 1; display:flex; flex-direction:column; justify-content:center; }
+.sl .c-giallo { background-color:var(--c-giallo); }
+.sl .c-azzurro { background-color:var(--c-azzurro); }
+.sl .c-rosa { background-color:var(--c-rosa); }
+.sl .c-arancio { background-color:var(--c-arancio); }
+.sl .c-verde { background-color:var(--c-verde); }
+.sl .c-bianco { background-color:var(--c-bianco); }
+/* "mix" = metà azzurro e metà rosa (per indicare più persone insieme) */
+.sl .b-postit.c-mix { background-image:linear-gradient(to bottom, rgba(0,0,0,.08) 0, rgba(0,0,0,0) 38px), linear-gradient(100deg, var(--c-azzurro) 62%, var(--c-rosa) 62%); }
+
+/* post-it con percentuale e barra */
+.sl .peso { display:flex; justify-content:space-between; align-items:center; font-weight:900; letter-spacing:-.02em; }
+.sl .barra { height:.55em; background:rgba(23,22,15,.14); border-radius:1em; margin-top:.3em; overflow:hidden; }
+.sl .barra i { display:block; height:100%; background:var(--inchiostro); border-radius:1em; }
+
+.sl .b-foto { background-size:cover; background-position:center; border-radius:6px; background-color:#222; }
+.sl .b-foto.vuota { display:flex; align-items:center; justify-content:center; font-size:38px; font-weight:700; color:rgba(246,244,238,.55); border:5px dashed rgba(246,244,238,.35); background:transparent; }
+
+/* logo e numero pagina */
+.sl .logo { position:absolute; top:70px; left:90px; width:300px; height:150px; background-size:contain; background-repeat:no-repeat; background-position:left top; z-index:5; }
+.sl .logo.segnaposto { width:130px; height:130px; top:60px; left:70px; border:4px dashed rgba(246,244,238,.55); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:800; letter-spacing:2px; color:rgba(246,244,238,.7); }
+.sl .sfondo-slide { position:absolute; inset:0; background-size:cover; background-position:center; }
+.sl .velo-slide { position:absolute; inset:0; }
+.sl .numero { position:absolute; top:80px; right:80px; font-size:30px; font-weight:700; color:var(--grigio); opacity:.7; z-index:5; }
+
+/* testo in modifica direttamente sulla slide (doppio clic) */
+#tela .in-modifica { white-space:pre-wrap; background:rgba(232,192,96,.14); outline:4px dashed #e8c060; outline-offset:6px; -webkit-user-select:text; user-select:text; }
+#tela .b.sel.in-modifica { outline-style:dashed; }
+/* sul testo che stai scrivendo il puntatore è la barretta (come nei campi di testo), non la manina: la manina copriva le parole. !important perché gli elementi selezionati o liberi hanno già un loro puntatore (manina, croce) */
+#tela .in-modifica, #tela .in-modifica * { cursor:text !important; }
+
+/* mentre trascini un file dal Finder: contorno oro tratteggiato sulla zona che lo accoglie */
+#colCanvas.drop-file #telaBox { outline:4px dashed var(--ui-acc); outline-offset:6px; }
+.voce.drop-file .mini { border-color:var(--ui-acc); border-style:dashed; }
+
+/* solo nell'editor: contorno dell'elemento selezionato */
+#tela .b.sel { outline:6px solid #e8c060; outline-offset:8px; }
+#tela .b.libero { cursor:move; }
+#tela .b { cursor:pointer; }
+#tela .b.sel:not(.libero) { cursor:grab; }   /* elemento in flusso selezionato: si può trascinare su e giù */
+#tela .segno-drop { position:absolute; background:#e8c060; border-radius:4px; box-shadow:0 0 24px rgba(232,192,96,.9); z-index:20; pointer-events:none; }   /* linea oro che mostra dove finirà l'elemento trascinato */
+#tela .b-foto.sel:not(.vuota) { cursor:grab; }   /* foto in riquadro selezionata: si può trascinare per farla slittare */
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Editor caroselli</h1>
+  <button id="bTemplate" class="primario">+ Nuova slide</button>
+  <button id="bUndo" title="Annulla (Ctrl/Cmd+Z)">Annulla</button>
+  <span class="spazio"></span>
+  <span id="stato"></span>
+  <button id="bImpostazioni">Colori e logo</button>
+  <div class="menu">
+    <button id="mFile" aria-haspopup="true">File</button>
+    <div class="tendina">
+      <button id="bNuovo">Nuovo progetto<small>riparti dalle 3 slide iniziali</small></button>
+      <button id="bRecupera" style="display:none">Recupera lavoro precedente<small>l'ultima volta non l'avevi salvato in un file</small></button>
+      <hr>
+      <button id="bApri">Apri progetto<small>da un file .carosello (o .json) salvato</small></button>
+      <button id="bSalva">Salva progetto<small>scarica un file .carosello da tenere</small></button>
+    </div>
+  </div>
+  <div class="menu">
+    <button id="mEsporta" class="primario" aria-haspopup="true">Esporta</button>
+    <div class="tendina">
+      <button id="bPng">PNG di questa slide<small>la slide che stai guardando</small></button>
+      <button id="bZip">Tutte le slide (ZIP)<small>un'immagine 1080×1350 per slide</small></button>
+    </div>
+  </div>
+  <input id="fileProgetto" type="file" accept=".carosello,.json,application/json" hidden>
+</header>
+
+<main>
+  <aside id="colSlide"></aside>
+  <section id="colCanvas"><div id="telaBox"><div id="tela"></div></div></section>
+  <aside id="colPannello"></aside>
+</main>
+
+<!-- finestra: scelta del template per una nuova slide -->
+<dialog id="dlgTemplate">
+  <h3>Che tipo di slide vuoi aggiungere?</h3>
+  <div class="griglia-template" id="grigliaTemplate"></div>
+  <div class="chiudi"><button id="chiudiTemplate">Annulla</button></div>
+</dialog>
+
+<!-- finestra: colori, logo, opzioni generali -->
+<dialog id="dlgImpostazioni">
+  <h3>Colori, logo e opzioni</h3>
+  <div id="contenutoImpostazioni"></div>
+  <div class="chiudi"><button id="chiudiImpostazioni" class="primario">Fatto</button></div>
+</dialog>
+
+<!-- finestra: il progetto attuale non è stato salvato in un file (si apre da "Nuovo progetto") -->
+<dialog id="dlgSalvare">
+  <h3>Questo progetto non è stato salvato</h3>
+  <p style="font-size:14px;line-height:1.5;margin-bottom:6px">Hai fatto modifiche che non sono in nessun file <b>.carosello</b>. Se riparti da zero le perdi (finché non chiudi la pagina le recuperi con "Annulla").</p>
+  <div class="chiudi" style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+    <button id="salvaAnnulla">Annulla</button>
+    <button id="salvaNonSalvare" class="pericolo">Non salvare</button>
+    <button id="salvaESegui" class="primario">Salva</button>
+  </div>
+</dialog>
+
+<!-- avviso temporaneo in basso (al posto delle finestre di conferma del browser) -->
+<div id="avviso"></div>
+
+<!-- contenitore nascosto usato per generare i PNG a dimensione piena -->
+<div id="fuori"></div>
+
+<script src="assets.js"></script>
+<script>
+// Doppio clic su un file .carosello: apri_progetto.sh prepara "progetto_da_aprire.js" e apre questa pagina con ?apri=1.
+// Senza ?apri=1 quel file viene ignorato, così un vecchio progetto non si riapre da solo.
+if (/[?&]apri=1(&|$)/.test(location.search)) document.write('<script src="progetto_da_aprire.js?' + Date.now() + '"><\/script>');
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+'use strict';
+/* =====================================================================
+   COME È FATTO QUESTO FILE (leggi qui se vuoi capirlo o cambiarlo)
+
+   Il progetto è un oggetto "stato":
+     stato.impostazioni  colori, logo, opzioni generali
+     stato.immagini      le foto caricate (id -> dati dell'immagine)
+     stato.slide[]       le slide; ogni slide ha una lista di "blocchi"
+     stato.corrente      indice della slide che stai modificando
+
+   Un BLOCCO è un elemento della slide: titolo, testo, post-it, post-it con
+   percentuale, foto, spazio. Ogni blocco ha un "tipo" e dei campi.
+   I blocchi sono due modalità:
+     - in FLUSSO: si dispongono da soli uno sotto l'altro (i post-it "metà"
+       si affiancano a due a due);
+     - LIBERI: li trascini dove vuoi sulla slide.
+
+   Per aggiungere un nuovo TIPO di blocco bisogna toccare 3 punti:
+     1) DEF (i campi che compaiono nel pannello a destra)
+     2) renderBlocco (come si disegna sulla slide)
+     3) il pulsante in "Aggiungi elemento" (si crea da solo da DEF)
+   Per aggiungere un nuovo TEMPLATE di slide: aggiungi una voce in TEMPLATE.
+   ===================================================================== */
+
+// ---------- Impostazioni di partenza ----------
+const HAS_ASSET = typeof ASSET !== 'undefined';   // logo e sfondo di UNDER, incorporati da assets.js
+const IMPOSTAZIONI_DEFAULT = {
+  fondo: '#5C554E',        // colore di sfondo (si vede solo se non c'è un'immagine di sfondo)
+  testo: '#F6F4EE',        // colore dei titoli
+  evidenziaPostit: '#C4261A',   // colore delle parole evidenziate dentro i post-it: il rosso del bagliore dell'editor, perché il giallo non si legge sui colori chiari dei post-it
+  evidenzia: '#E8C060',    // colore delle parole evidenziate con *parola* (oro del logo UNDER, un po' più chiaro per leggerlo bene)
+  grigio: '#E4DFD2',       // colore del testo secondario
+  inchiostro: '#17160F',   // colore delle scritte dentro i post-it (nero)
+  postit: { giallo:'#FFE27A', azzurro:'#AFD6FA', rosa:'#FFB9CB', arancio:'#FFC27F', verde:'#C3E9AE', bianco:'#F6F4EE' },
+  logo: HAS_ASSET ? 'cerchio' : null,       // id dell'immagine del logo: il cerchio aperto (assets.js)
+  logoLarg: 230,                            // larghezza del logo in pixel (sulla slide da 1080)
+  logoMostra: true,
+  sfondoImg: HAS_ASSET ? 'sfondo' : null,   // id dell'immagine di sfondo
+  sfondoVelo: 0.12,                         // quanto scurire lo sfondo (0 = per niente, 0.6 = molto)
+  numeri: true             // numero di pagina "2/9"
+};
+const IMMAGINI_DEFAULT = () => (HAS_ASSET ? { cerchio: ASSET.cerchio, sfondo: ASSET.sfondo } : {});
+// Versione del formato del progetto. Quando sale, normalizza() aggiorna una volta sola i progetti salvati con una versione più vecchia:
+//   2 = logo e sfondo di UNDER incorporati;  3 = il logo di partenza diventa il cerchio aperto;
+//   4 = il colore delle parole evidenziate nei post-it (rosso) sostituisce i gialli provati prima.
+const VERSIONE = 5;
+const NOMI_COLORI = ['giallo','azzurro','rosa','arancio','verde','bianco','mix'];
+
+// Dimensioni del testo in pixel (la slide è 1080x1350)
+const DIM_TITOLO = { S:64, M:84, L:112, XL:132 };
+const DIM_TESTO  = { S:36, M:46, L:56 };
+const DIM_POSTIT = { S:52, M:66, L:78, XL:96 };
+
+// ---------- Definizione dei blocchi: campi del pannello e valori iniziali ----------
+// t = tipo di campo: area (testo su più righe), testo, scelta, colore, numero, check, immagine
+const DEF = {
+  titolo: {
+    nome: 'Titolo',
+    nuovo: () => ({ testo: 'Nuovo titolo con una *parola* evidenziata', dim: 'L' }),
+    campi: [
+      { t:'area', k:'testo', et:'Testo (metti *asterischi* attorno alla parola da evidenziare)', righe:3 },
+      { t:'scelta', k:'dim', et:'Dimensione', opz:[['S','Piccolo'],['M','Medio'],['L','Grande'],['XL','Enorme']] }
+    ],
+    etichetta: b => b.testo
+  },
+  testo: {
+    nome: 'Testo',
+    nuovo: () => ({ testo: 'Una riga di spiegazione.', dim: 'M' }),
+    campi: [
+      { t:'area', k:'testo', et:'Testo (puoi usare *parola* per evidenziare)', righe:3 },
+      { t:'scelta', k:'dim', et:'Dimensione', opz:[['S','Piccolo'],['M','Medio'],['L','Grande']] }
+    ],
+    etichetta: b => b.testo
+  },
+  postit: {
+    nome: 'Post-it',
+    nuovo: () => ({ colore:'giallo', titolo:'Scrivi qui', sotto:'', dim:'L', larghezza:'int', quadrato:false }),
+    campi: [
+      { t:'colore', k:'colore', et:'Colore' },
+      { t:'area', k:'titolo', et:'Testo grande (metti *asterischi* attorno alle parole in giallo)', righe:2 },
+      { t:'area', k:'sotto', et:'Testo piccolo (facoltativo, anche qui *asterischi* per il giallo)', righe:2 },
+      { t:'scelta', k:'dim', et:'Dimensione', opz:[['S','Piccolo'],['M','Medio'],['L','Grande'],['XL','Enorme']] },
+      { t:'scelta', k:'larghezza', et:'Larghezza (in flusso)', opz:[['int','Intera'],['met','Metà (si affianca)']] },
+      { t:'check', k:'quadrato', et:'Forma quadrata' }
+    ],
+    etichetta: b => b.titolo
+  },
+  peso: {
+    // nascosto = non compare più tra i pulsanti di "Aggiungi elemento", ma il tipo resta definito:
+    // così i progetti vecchi che lo contengono si aprono e si disegnano ancora come prima.
+    nascosto: true,
+    nome: 'Post-it con percentuale',
+    nuovo: () => ({ colore:'azzurro', nome:'Anna', valore:50, dim:'L', larghezza:'int' }),
+    campi: [
+      { t:'colore', k:'colore', et:'Colore' },
+      { t:'testo', k:'nome', et:'Nome' },
+      { t:'numero', k:'valore', et:'Percentuale', min:0, max:100, passo:1 },
+      { t:'scelta', k:'dim', et:'Dimensione', opz:[['S','Piccolo'],['M','Medio'],['L','Grande']] },
+      { t:'scelta', k:'larghezza', et:'Larghezza (in flusso)', opz:[['int','Intera'],['met','Metà (si affianca)']] }
+    ],
+    etichetta: b => b.nome + ' ' + b.valore + '%'
+  },
+  foto: {
+    nome: 'Foto',
+    // fx e fy = quale punto della foto resta al centro quando viene tagliata (in percento: 0 = bordo sinistro/alto, 50 = centro, 100 = bordo destro/basso)
+    nuovo: () => ({ img:null, modo:'blocco', altezza:520, velo:true, fx:50, fy:50 }),
+    campi: [
+      { t:'immagine', k:'img', et:'Foto' },
+      { t:'scelta', k:'modo', et:'Come la metti', opz:[['sfondo','A tutta slide (sfondo)'],['blocco','Come riquadro']], ridisegna:true },
+      { t:'numero', k:'altezza', et:'Altezza del riquadro (px)', min:150, max:1100, passo:10, se: b => b.modo === 'blocco' },
+      { t:'posfoto', et:'Parte della foto che si vede', se: b => !!stato.immagini[b.img] },
+      { t:'check', k:'velo', et:'Velo scuro per leggere meglio il testo', se: b => b.modo === 'sfondo' }
+    ],
+    etichetta: b => (b.modo === 'sfondo' ? 'Foto di sfondo' : 'Foto')
+  },
+  spazio: {
+    nome: 'Spazio vuoto',
+    nuovo: () => ({ altezza: 20 }),
+    campi: [ { t:'numero', k:'altezza', et:'Altezza (px)', min:10, max:800, passo:10 } ],
+    etichetta: b => 'Spazio ' + b.altezza + 'px'
+  }
+};
+
+// ---------- Template di slide ----------
+let _uid = 0;
+const uid = () => 'i' + (Date.now().toString(36)) + (_uid++).toString(36);
+const B = (tipo, extra = {}) => ({ id: uid(), tipo, libero:false, x:90, y:300, w:440, ...DEF[tipo].nuovo(), ...extra });
+const S = (nome, opz, blocchi) => ({ id: uid(), nome, allineamento:'centro', logo:true, numero:true, ...opz, blocchi });
+
+const TEMPLATE = [
+  { nome:'Copertina con foto',
+    crea: () => S('Copertina', { allineamento:'basso', numero:false }, [
+      B('foto', { modo:'sfondo' }),
+      B('postit', { colore:'giallo', titolo:'Argomento', dim:'S', libero:true, x:560, y:62, w:440 }),
+      B('titolo', { testo:'Un titolo che *incuriosisce*', dim:'L' })
+    ]) },
+  { nome:'Solo titolo',
+    crea: () => S('Solo titolo', {}, [
+      B('titolo', { testo:'*Titolo* slide' }),
+      B('testo', { testo:'Sottotitolo da *inserire qui*' })
+    ]) },
+  { nome:'Titolo + post-it',
+    crea: () => S('Titolo + post-it', {}, [
+      B('titolo', { testo:'Cosa *vuoi scrivere*?' }),
+      B('postit', { colore:'giallo', titolo:'Scrivilo qua', sotto:'se serve approfondire qualcosa scrivila qua' }),
+      B('testo', { testo:'Una riga di spiegazione.' })
+    ]) },
+  { nome:'Foto + testo',
+    crea: () => S('Foto + testo', { allineamento:'alto' }, [
+      B('foto', { modo:'blocco', altezza:520 }),
+      B('titolo', { testo:'Un titolo con una *parola* evidenziata', dim:'M' }),
+      B('testo', { testo:'Una riga di spiegazione.' })
+    ]) },
+  { nome:'Slide vuota',
+    crea: () => S('Slide vuota', {}, []) }
+];
+
+// ---------- Preset iniziale: tre slide di partenza da riscrivere ----------
+// Il carosello della MoE (scuola) l'ho tolto da qui: se ti serve, apri Carosello_Prova.json con "Apri progetto".
+function progettoIniziale() {
+  const slide = [
+    S('Copertina', { allineamento:'basso', numero:false }, [
+      B('foto', { modo:'sfondo' }),
+      B('titolo', { testo:'Titolo del carosello da *inserire qui*', dim:'L' })
+    ]),
+    S('Solo titolo', {}, [
+      B('titolo', { testo:'*Titolo* slide' }),
+      B('testo', { testo:'Sottotitolo da *inserire qui*' })
+    ]),
+    S('Titolo + due post-it', {}, [
+      B('titolo', { testo:'Titolo slide' }),
+      B('postit', { colore:'giallo', titolo:'Prima cosa' }),
+      B('postit', { colore:'azzurro', titolo:'Seconda cosa' })
+    ])
+  ];
+  // Il preset parte con il cerchio aperto come logo (si cambia da "Colori e logo", "Cambia logo").
+  const impostazioni = clona(IMPOSTAZIONI_DEFAULT);
+  return { versione: VERSIONE, impostazioni, immagini: IMMAGINI_DEFAULT(), slide, corrente: 0 };
+}
+
+// ---------- Utilità ----------
+const clona = o => JSON.parse(JSON.stringify(o));
+const $ = s => document.querySelector(s);
+
+// Crea un elemento HTML in una riga: h('div', {class:'x'}, figli...)
+function h(tag, att = {}, ...figli) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(att)) {
+    if (k === 'class') e.className = v;
+    else if (k === 'style') e.style.cssText = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (v !== false && v != null) e.setAttribute(k, v === true ? '' : v);
+  }
+  figli.flat().forEach(f => { if (f == null || f === false) return; e.append(f.nodeType ? f : document.createTextNode(f)); });
+  return e;
+}
+
+// Testo -> HTML sicuro. *parola* diventa evidenziata (solo se evid = true), a capo = <br>
+function fmt(testo, evid) {
+  const sicuro = String(testo ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const conEv = sicuro.replace(/\*(.+?)\*/g, evid ? '<span class="ev">$1</span>' : '$1');
+  return conEv.replace(/\n/g, '<br>');
+}
+
+// ---------- Stato dell'editor ----------
+let stato = null;
+let selezionato = null;     // id del blocco selezionato
+let scala = 0.5;            // zoom dell'anteprima
+const pilaUndo = [];        // copie precedenti del progetto, per "Annulla"
+let ultimoUndo = 0;
+const CHIAVE = 'editor-caroselli-v1';
+
+const slideCorrente = () => stato.slide[stato.corrente];
+const bloccoSelezionato = () => slideCorrente()?.blocchi.find(b => b.id === selezionato) || null;
+
+// ---------- Annulla ----------
+// Salviamo una copia del progetto (senza le immagini, che sono pesanti) prima di ogni modifica.
+// Per il testo che si scrive di continuo ne salviamo una ogni 700 ms circa.
+function istantanea() { return JSON.stringify({ impostazioni: stato.impostazioni, slide: stato.slide, corrente: stato.corrente }); }
+function preparaUndo(forza = false) {
+  const ora = Date.now();
+  if (!forza && ora - ultimoUndo < 700) return;
+  ultimoUndo = ora;
+  pilaUndo.push(istantanea());
+  if (pilaUndo.length > 60) pilaUndo.shift();
+}
+function annulla() {
+  const s = pilaUndo.pop();
+  if (!s) return;
+  const v = JSON.parse(s);
+  stato.impostazioni = v.impostazioni; stato.slide = v.slide; stato.corrente = Math.min(v.corrente, v.slide.length - 1);
+  selezionato = null;
+  tutto();
+}
+
+// ---------- Salvataggio automatico nel browser ----------
+let timerSalva = null;
+// Copia del progetto da salvare: tiene solo le immagini che servono davvero (logo, sfondo e foto presenti nelle slide).
+// Le foto sostituite o tolte restavano nel file e lo gonfiavano (anche a 10 MB); in memoria restano finché non chiudi,
+// così "Annulla" può ancora riportarle indietro.
+function statoPerSalvare() {
+  const usate = new Set([stato.impostazioni.logo, stato.impostazioni.sfondoImg]);
+  stato.slide.forEach(s => s.blocchi.forEach(b => { if (b.img) usate.add(b.img); }));
+  const immagini = {};
+  for (const [id, dati] of Object.entries(stato.immagini)) if (usate.has(id)) immagini[id] = dati;
+  return { ...stato, immagini };
+}
+function salvaAuto() {
+  clearTimeout(timerSalva);
+  timerSalva = setTimeout(() => {
+    try { localStorage.setItem(CHIAVE, JSON.stringify(statoPerSalvare())); $('#stato').textContent = 'Salvato nel browser'; }
+    catch (e) { $('#stato').textContent = 'Spazio pieno: usa "Salva progetto"'; }
+  }, 400);
+}
+// Ogni volta che apri l'editor si parte dal preset (le 3 slide iniziali).
+// Se l'ultima volta avevi lavoro che non era salvato in un file .json, non lo buttiamo: lo mettiamo da parte
+// (CHIAVE_PREC) e ti offriamo di recuperarlo, con un avviso e col pulsante "Recupera lavoro precedente".
+const CHIAVE_PREC = CHIAVE + '-precedente';
+let appenaMessoDaParte = false;
+function carica() {
+  try {
+    const raw = localStorage.getItem(CHIAVE);
+    if (raw) {
+      const v = JSON.parse(raw);
+      if (v && v.slide && v.slide.length) {
+        const prec = normalizza(v);
+        const impr = improntaDi(prec);
+        // c'è qualcosa da perdere solo se differisce sia dall'ultimo salvataggio su file sia dal preset intatto
+        if (impr !== improntaSalvata && impr !== improntaDi(progettoIniziale())) {
+          try { localStorage.setItem(CHIAVE_PREC, raw); appenaMessoDaParte = true; }
+          catch (e) { return prec; }   // niente spazio per la copia: meglio riaprire il lavoro che rischiare di perderlo
+        }
+      }
+    }
+  } catch (e) { /* se il salvataggio è rovinato si riparte dal preset */ }
+  return progettoIniziale();
+}
+function lavoroPrecedente() {
+  try { const raw = localStorage.getItem(CHIAVE_PREC); if (raw) { const v = JSON.parse(raw); if (v && v.slide && v.slide.length) return v; } } catch (e) { /* niente da recuperare */ }
+  return null;
+}
+function aggiornaBottoneRecupera() {
+  const c = !!lavoroPrecedente();
+  $('#bRecupera').style.display = c ? '' : 'none';
+  $('#mFile').classList.toggle('avvisa', c);   // pallino arancio sul menu File: c'è un lavoro da recuperare
+}
+function recuperaPrecedente() {
+  const v = lavoroPrecedente(); if (!v) return;
+  let copia = null; try { copia = localStorage.getItem(CHIAVE_PREC); } catch (e) { /* ok */ }
+  preparaUndo(true);
+  const immaginiAttuali = stato.immagini;
+  stato = normalizza(v);
+  stato.immagini = { ...immaginiAttuali, ...stato.immagini };   // teniamo anche le attuali, così "Annulla" non perde niente
+  selezionato = null; tutto();
+  try { localStorage.removeItem(CHIAVE_PREC); } catch (e) { /* ok */ }
+  aggiornaBottoneRecupera();
+  avviso('Lavoro precedente recuperato.', 'Annulla', () => {
+    annulla();
+    // se annulli, il lavoro precedente torna "da parte", così non si perde
+    try { if (copia) localStorage.setItem(CHIAVE_PREC, copia); } catch (e) { /* ok */ }
+    aggiornaBottoneRecupera();
+  });
+}
+// Completa un progetto vecchio o incompleto con i valori mancanti
+function normalizza(v) {
+  v.impostazioni = { ...clona(IMPOSTAZIONI_DEFAULT), ...v.impostazioni, postit: { ...IMPOSTAZIONI_DEFAULT.postit, ...(v.impostazioni?.postit || {}) } };
+  v.immagini = v.immagini || {};
+  // Progetti salvati prima della versione 2 non avevano logo e sfondo di UNDER: li aggiungiamo una volta sola
+  const versionePrima = v.versione || 0;
+  if (versionePrima < 2) {
+    if (HAS_ASSET) {
+      Object.assign(v.immagini, IMMAGINI_DEFAULT());
+      v.impostazioni.sfondoImg = 'sfondo';
+      v.impostazioni.fondo = IMPOSTAZIONI_DEFAULT.fondo; v.impostazioni.evidenzia = IMPOSTAZIONI_DEFAULT.evidenzia; v.impostazioni.grigio = IMPOSTAZIONI_DEFAULT.grigio;
+    }
+  }
+  // Progetti salvati prima della versione 3 (qualunque logo avessero, anche nessuno): il logo diventa il cerchio aperto, una volta sola.
+  // Dopo averlo risalvato il progetto è in versione 3 e il logo che sceglierai tu non viene più toccato.
+  if (versionePrima < 3 && HAS_ASSET) {
+    v.immagini.cerchio = ASSET.cerchio;
+    v.impostazioni.logo = 'cerchio';
+    v.impostazioni.logoLarg = IMPOSTAZIONI_DEFAULT.logoLarg;   // anche la larghezza torna quella di partenza (la vecchia era pensata per la scritta UNDER)
+  }
+  // Progetti salvati prima della versione 4 (mentre si provavano i gialli nei post-it): il colore delle parole evidenziate nei post-it diventa il rosso di partenza.
+  if (versionePrima < 4) v.impostazioni.evidenziaPostit = IMPOSTAZIONI_DEFAULT.evidenziaPostit;
+  // Progetti salvati prima della versione 5 (il cerchio aperto è diventato più spesso e panciuto): l'immagine "cerchio" è sempre quella di serie,
+  // quindi la sostituisco con la nuova. Un logo che hai caricato tu ha un altro nome e non viene toccato.
+  if (versionePrima < 5 && HAS_ASSET && v.immagini && v.immagini.cerchio) v.immagini.cerchio = ASSET.cerchio;
+  v.versione = VERSIONE;
+  v.corrente = Math.min(v.corrente || 0, v.slide.length - 1);
+  return v;
+}
+
+// =====================================================================
+// DISEGNO DELLE SLIDE
+// =====================================================================
+// Posizione della foto dentro il suo riquadro (CSS background-position), da fx e fy del blocco.
+// Con background-size:cover la foto riempie sempre il riquadro e la parte che avanza viene tagliata:
+// fx/fy dicono quale parte tenere. 50/50 = centro (come prima), fy 0 = si vede la parte alta, fy 100 = la parte bassa.
+// I progetti salvati prima di questa funzione non hanno fx/fy: per loro vale il centro, quindi non cambia niente.
+const posizioneFoto = b => (b.fx ?? 50) + '% ' + (b.fy ?? 50) + '%';
+
+function renderBlocco(b, opz) {
+  let n;
+  if (b.tipo === 'titolo') {
+    n = h('div', { class:'b b-titolo', 'data-campo':'testo' }); n.style.fontSize = DIM_TITOLO[b.dim] + 'px'; n.innerHTML = fmt(b.testo, true);
+  } else if (b.tipo === 'testo') {
+    n = h('div', { class:'b b-testo', 'data-campo':'testo' }); n.style.fontSize = DIM_TESTO[b.dim] + 'px'; n.innerHTML = fmt(b.testo, true);
+  } else if (b.tipo === 'postit') {
+    n = h('div', { class:'b b-postit c-' + b.colore + (b.quadrato ? ' quad' : '') });
+    n.style.fontSize = DIM_POSTIT[b.dim] + 'px';
+    // data-campo dice quale campo del blocco contiene quel testo: serve alla modifica direttamente sulla slide (doppio clic)
+    n.innerHTML = '<div data-campo="titolo">' + fmt(b.titolo, true) + '</div>' + (b.sotto ? '<small data-campo="sotto">' + fmt(b.sotto, true) + '</small>' : '');
+  } else if (b.tipo === 'peso') {
+    n = h('div', { class:'b b-postit c-' + b.colore });
+    n.style.fontSize = DIM_POSTIT[b.dim] + 'px';
+    const v = Math.max(0, Math.min(100, Number(b.valore) || 0));
+    n.innerHTML = '<div class="peso"><span>' + fmt(b.nome, false) + '</span><span>' + v + '%</span></div><div class="barra"><i style="width:' + v + '%"></i></div>';
+  } else if (b.tipo === 'foto') {
+    // la foto "di sfondo" non è un blocco nel flusso: la disegna renderSlide
+    if (b.modo === 'sfondo') return null;
+    const src = stato.immagini[b.img];
+    n = h('div', { class:'b b-foto' + (src ? '' : ' vuota') });
+    n.style.height = b.altezza + 'px';
+    if (src) { n.style.backgroundImage = 'url(' + src + ')'; n.style.backgroundPosition = posizioneFoto(b); }
+    else if (opz.anteprima) n.textContent = 'FOTO';
+    else return null;
+  } else if (b.tipo === 'spazio') {
+    n = h('div', { class:'b' }); n.style.height = b.altezza + 'px';
+    if (!opz.anteprima) n.style.visibility = 'hidden';
+  }
+  n.dataset.id = b.id;
+  if (b.libero) {
+    n.classList.add('libero');
+    n.style.position = 'absolute'; n.style.left = b.x + 'px'; n.style.top = b.y + 'px'; n.style.zIndex = 4;
+    if (b.w) n.style.width = b.w + 'px';
+  } else if (b.tipo !== 'titolo' && b.tipo !== 'testo') {
+    n.classList.add(b.larghezza === 'met' ? 'w-met' : 'w-int');
+  } else {
+    n.classList.add('w-int');
+  }
+  return n;
+}
+
+// Costruisce l'elemento HTML di una slide intera (1080x1350).
+// opz.anteprima = true: mostra i segnaposto (logo, foto) e la selezione, che NON devono finire nel PNG.
+function renderSlide(slide, indice, opz = {}) {
+  const I = stato.impostazioni;
+  const el = h('div', { class:'sl' });
+  el.dataset.al = slide.allineamento;
+  const vars = { '--fondo':I.fondo, '--testo':I.testo, '--evidenzia':I.evidenzia, '--evidenzia-postit':I.evidenziaPostit, '--grigio':I.grigio, '--inchiostro':I.inchiostro };
+  for (const [nome, col] of Object.entries(I.postit)) vars['--c-' + nome] = col;
+  for (const [k, v] of Object.entries(vars)) el.style.setProperty(k, v);
+
+  // sfondo comune a tutte le slide (immagine + velo scuro regolabile)
+  const srcSfondo = stato.immagini[I.sfondoImg];
+  if (srcSfondo) {
+    const bg = h('div', { class:'sfondo-slide' }); bg.style.backgroundImage = 'url(' + srcSfondo + ')'; el.append(bg);
+    if (I.sfondoVelo > 0) { const v = h('div', { class:'velo-slide' }); v.style.background = 'rgba(0,0,0,' + I.sfondoVelo + ')'; el.append(v); }
+  }
+
+  // foto di sfondo (se c'è un blocco foto in modalità sfondo)
+  const fs = slide.blocchi.find(b => b.tipo === 'foto' && b.modo === 'sfondo');
+  if (fs) {
+    const src = stato.immagini[fs.img];
+    if (src) { const f = h('div', { class:'sfondo-foto' }); f.style.backgroundImage = 'url(' + src + ')'; f.style.backgroundPosition = posizioneFoto(fs); el.append(f); }
+    else if (opz.anteprima) el.append(h('div', { class:'sfondo-vuoto' }), h('div', { class:'segnaposto-foto' }, 'FOTO DI COPERTINA (aggiungila dal pannello a destra)'));
+    if (fs.velo && (src || opz.anteprima)) el.append(h('div', { class:'velo' }));
+  }
+
+  // i blocchi in flusso vanno nel contenitore "flusso", quelli liberi direttamente sulla slide (sopra al flusso)
+  const flusso = h('div', { class:'flusso' });
+  const liberi = [];
+  slide.blocchi.forEach(b => {
+    const n = renderBlocco(b, opz);
+    if (!n) return;
+    if (opz.selezionato === b.id) n.classList.add('sel');
+    if (b.libero) liberi.push(n); else flusso.append(n);
+  });
+  el.append(flusso);
+  liberi.forEach(n => el.append(n));
+
+  // logo fisso
+  if (I.logoMostra && slide.logo) {
+    const src = stato.immagini[I.logo];
+    if (src) {
+      // il logo è largo (una scritta): la larghezza la scegli nelle impostazioni, l'altezza è la metà
+      const l = h('div', { class:'logo' }); l.style.backgroundImage = 'url(' + src + ')';
+      l.style.width = I.logoLarg + 'px'; l.style.height = Math.round(I.logoLarg / 2) + 'px'; el.append(l);
+    }
+    else if (opz.anteprima) el.append(h('div', { class:'logo segnaposto' }, 'LOGO'));
+  }
+  if (I.numeri && slide.numero) el.append(h('div', { class:'numero' }, (indice + 1) + '/' + stato.slide.length));
+  return el;
+}
+
+// =====================================================================
+// INTERFACCIA
+// =====================================================================
+function disegnaTela() {
+  const tela = $('#tela');
+  tela.innerHTML = '';
+  tela.append(renderSlide(slideCorrente(), stato.corrente, { anteprima:true, selezionato }));
+  adattaZoom();
+}
+function adattaZoom() {
+  const col = $('#colCanvas');
+  const s = Math.min((col.clientWidth - 40) / 1080, (col.clientHeight - 40) / 1350);
+  scala = Math.max(0.08, Math.min(1, s));
+  $('#tela').style.transform = 'scale(' + scala + ')';
+  const box = $('#telaBox'); box.style.width = 1080 * scala + 'px'; box.style.height = 1350 * scala + 'px';
+}
+
+let slideTrascinata = null;   // indice della slide che stai trascinando (null = nessuna)
+function disegnaMiniature() {
+  const col = $('#colSlide');
+  col.innerHTML = '';
+  col.append(h('h2', {}, 'Slide (' + stato.slide.length + ')'));
+  const pulisciSegni = () => col.querySelectorAll('.voce').forEach(v => v.classList.remove('drop-sopra', 'drop-sotto', 'trascinata'));
+  stato.slide.forEach((sl, i) => {
+    const mini = h('div', { class:'mini', onclick: () => { stato.corrente = i; selezionato = null; tutto(); } }, renderSlide(sl, i, { anteprima:true }));
+    const voce = h('div', { class:'voce' + (i === stato.corrente ? ' corrente' : ''), draggable:'true', title:'Trascina per spostare la slide' },
+      mini,
+      h('div', { class:'nome' }, h('span', { class:'presa' }, '⋮⋮'), h('span', { class:'testo' }, (i + 1) + ' · ' + sl.nome)),
+      h('div', { class:'azioni' },
+        h('button', { class:'piccolo', title:'Sposta su', onclick: () => muoviSlide(i, i - 1) }, '↑'),
+        h('button', { class:'piccolo', title:'Sposta giù', onclick: () => muoviSlide(i, i + 1) }, '↓'),
+        h('button', { class:'piccolo', onclick: () => duplicaSlide(i) }, 'Duplica'),
+        h('button', { class:'piccolo pericolo', onclick: () => eliminaSlide(i) }, 'Elimina')
+      )
+    );
+    // trascinamento: una linea oro mostra dove finirà la slide
+    const sopra = e => { const r = voce.getBoundingClientRect(); return e.clientY < r.top + r.height / 2; };
+    voce.addEventListener('dragstart', e => {
+      slideTrascinata = i; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(i));
+      voce.classList.add('trascinata');
+    });
+    voce.addEventListener('dragover', e => {
+      if (slideTrascinata === null) return;
+      e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+      pulisciSegni(); voce.classList.add(sopra(e) ? 'drop-sopra' : 'drop-sotto');
+      if (slideTrascinata !== null) col.querySelectorAll('.voce')[slideTrascinata]?.classList.add('trascinata');
+    });
+    voce.addEventListener('drop', e => {
+      if (slideTrascinata === null) return;
+      e.preventDefault();
+      const da = slideTrascinata; slideTrascinata = null;
+      let pos = sopra(e) ? i : i + 1;        // posizione di inserimento nella lista com'è ora
+      if (da < pos) pos--;                   // togliendo la slide da "da" gli indici successivi scalano di uno
+      pulisciSegni(); muoviSlide(da, pos);
+    });
+    voce.addEventListener('dragend', () => { slideTrascinata = null; pulisciSegni(); });
+    col.append(voce);
+  });
+}
+
+// ----- operazioni sulle slide -----
+// Sposta la slide che sta in posizione "da" così che finisca in posizione "a" (la slide selezionata resta la stessa).
+function muoviSlide(da, a) {
+  if (da === a || a < 0 || a >= stato.slide.length) return;
+  preparaUndo(true);
+  const corrente = stato.slide[stato.corrente];
+  const [x] = stato.slide.splice(da, 1); stato.slide.splice(a, 0, x);
+  stato.corrente = stato.slide.indexOf(corrente);
+  tutto();
+}
+
+// Mentre trascini una slide vicino al bordo alto o basso della colonna, la colonna scorre da sola
+// (il browser non lo fa in modo affidabile). Più ti avvicini al bordo, più scorre veloce.
+// Il browser manda "dragover" di continuo mentre tieni premuto: se smette (esci dalla colonna o rilasci), smette anche lo scorrimento.
+(function () {
+  const col = $('#colSlide');
+  const FASCIA = 90, VEL_MAX = 22;   // px dal bordo in cui parte lo scorrimento, e passo massimo per fotogramma
+  let vel = 0, ultimo = 0, raf = null;
+  const passo = () => {
+    if (slideTrascinata === null || performance.now() - ultimo > 200) { vel = 0; raf = null; return; }
+    col.scrollTop += vel;
+    raf = requestAnimationFrame(passo);
+  };
+  col.addEventListener('dragover', e => {
+    if (slideTrascinata === null) return;
+    const r = col.getBoundingClientRect();
+    if (e.clientY < r.top + FASCIA) vel = -Math.max(2, Math.round((r.top + FASCIA - e.clientY) / FASCIA * VEL_MAX));
+    else if (e.clientY > r.bottom - FASCIA) vel = Math.max(2, Math.round((e.clientY - (r.bottom - FASCIA)) / FASCIA * VEL_MAX));
+    else vel = 0;
+    ultimo = performance.now();
+    if (vel && !raf) raf = requestAnimationFrame(passo);
+  });
+})();
+function duplicaSlide(i) {
+  preparaUndo(true);
+  const c = clona(stato.slide[i]); c.id = uid(); c.nome += ' (copia)'; c.blocchi.forEach(b => b.id = uid());
+  stato.slide.splice(i + 1, 0, c); stato.corrente = i + 1; selezionato = null; tutto();
+}
+// Elimina subito, senza finestre di conferma del browser (in alcuni browser, come quello integrato nell'app,
+// non compaiono e l'eliminazione non partiva mai). Se ti sei sbagliato c'è il tasto "Annulla" nell'avviso.
+function eliminaSlide(i) {
+  if (stato.slide.length === 1) { avviso('Deve restare almeno una slide.'); return; }
+  const nome = stato.slide[i].nome;
+  preparaUndo(true);
+  stato.slide.splice(i, 1); stato.corrente = Math.min(stato.corrente, stato.slide.length - 1); selezionato = null; tutto();
+  avviso('Slide "' + nome + '" eliminata.', 'Annulla', annulla);
+}
+
+// Avviso temporaneo in basso, con un pulsante facoltativo (ad esempio "Annulla")
+let timerAvviso = null;
+function avviso(testo, etichettaAzione, azione) {
+  const box = $('#avviso'); box.innerHTML = '';
+  box.append(h('span', {}, testo));
+  if (azione) box.append(h('button', { onclick: () => { azione(); box.style.display = 'none'; } }, etichettaAzione));
+  box.style.display = 'flex';
+  clearTimeout(timerAvviso); timerAvviso = setTimeout(() => { box.style.display = 'none'; }, 7000);
+}
+
+// ----- operazioni sui blocchi della slide corrente -----
+function spostaBlocco(b, d) {
+  const L = slideCorrente().blocchi; const i = L.indexOf(b), j = i + d;
+  if (j < 0 || j >= L.length) return;
+  preparaUndo(true); [L[i], L[j]] = [L[j], L[i]]; tutto();
+}
+function duplicaBlocco(b) {
+  preparaUndo(true);
+  const L = slideCorrente().blocchi; const c = clona(b); c.id = uid();
+  if (c.libero) { c.x += 30; c.y += 30; }
+  L.splice(L.indexOf(b) + 1, 0, c); selezionato = c.id; tutto();
+}
+function eliminaBlocco(b) {
+  preparaUndo(true);
+  const L = slideCorrente().blocchi; L.splice(L.indexOf(b), 1); selezionato = null; tutto();
+}
+function aggiungiBlocco(tipo) {
+  preparaUndo(true);
+  const b = B(tipo); slideCorrente().blocchi.push(b); selezionato = b.id; tutto();
+}
+// Passa un blocco da "in flusso" a "libero" (e viceversa) senza farlo saltare: parte dalla posizione in cui si trova.
+function impostaLibero(b, on) {
+  preparaUndo(true);
+  if (on) {
+    const nodo = document.querySelector('#tela [data-id="' + b.id + '"]');
+    if (nodo) {
+      const r = nodo.getBoundingClientRect(), t = $('#tela').getBoundingClientRect();
+      b.x = Math.round((r.left - t.left) / scala); b.y = Math.round((r.top - t.top) / scala); b.w = Math.round(r.width / scala);
+    }
+  }
+  b.libero = on; tutto();
+}
+
+// ----- PANNELLO DI DESTRA -----
+function campoArea(et, obj, k, righe) {
+  const ta = h('textarea', { rows: righe || 2, 'data-k': k }); ta.value = obj[k] ?? '';   // data-k: la modifica sulla slide ne aggiorna il contenuto
+  ta.addEventListener('input', () => { preparaUndo(); obj[k] = ta.value; aggiorna(); });
+  return h('label', { class:'campo' }, h('span', {}, et), ta);
+}
+function campoTesto(et, obj, k) {
+  const i = h('input', { type:'text' }); i.value = obj[k] ?? '';
+  i.addEventListener('input', () => { preparaUndo(); obj[k] = i.value; aggiorna(); });
+  return h('label', { class:'campo' }, h('span', {}, et), i);
+}
+function campoNumero(et, obj, k, min, max, passo) {
+  const i = h('input', { type:'number', min, max, step: passo || 1 }); i.value = obj[k] ?? 0;
+  i.addEventListener('input', () => { preparaUndo(); const v = Number(i.value); if (!Number.isNaN(v)) { obj[k] = v; aggiorna(); } });
+  return h('label', { class:'campo' }, h('span', {}, et), i);
+}
+function campoScelta(et, obj, k, opzioni, ridisegna) {
+  const g = h('div', { class:'gruppo' });
+  opzioni.forEach(([val, nome]) => {
+    const bt = h('button', { class: obj[k] === val ? 'attivo' : '', onclick: () => {
+      preparaUndo(true); obj[k] = val;
+      if (ridisegna) tutto(); else { [...g.children].forEach(c => c.classList.remove('attivo')); bt.classList.add('attivo'); aggiorna(); }
+    } }, nome);
+    g.append(bt);
+  });
+  return h('div', { class:'campo' }, h('span', {}, et), g);
+}
+function campoCheck(et, obj, k) {
+  const c = h('input', { type:'checkbox' }); c.checked = !!obj[k];
+  c.addEventListener('change', () => { preparaUndo(true); obj[k] = c.checked; aggiorna(); });
+  return h('label', { class:'campo', style:'display:flex;gap:8px;align-items:center' }, c, h('span', { style:'margin:0' }, et));
+}
+function campoColore(et, obj, k) {
+  const g = h('div', { class:'colori' });
+  NOMI_COLORI.forEach(nome => {
+    const sw = h('div', { class:'sw' + (obj[k] === nome ? ' on' : ''), title:nome, onclick: () => {
+      preparaUndo(true); obj[k] = nome; [...g.children].forEach(c => c.classList.remove('on')); sw.classList.add('on'); aggiorna();
+    } });
+    sw.style.background = nome === 'mix' ? 'linear-gradient(100deg,' + stato.impostazioni.postit.azzurro + ' 62%,' + stato.impostazioni.postit.rosa + ' 62%)' : stato.impostazioni.postit[nome];
+    g.append(sw);
+  });
+  return h('div', { class:'campo' }, h('span', {}, et), g);
+}
+// Due cursori (orizzontale e verticale) per far "slittare" la foto dentro il riquadro, più il pulsante per ricentrarla.
+// Lavora sui campi fx e fy del blocco foto. Se la foto non viene tagliata in una direzione, quel cursore non ha effetto visibile.
+function campoPosFoto(et, obj) {
+  const g = h('div', { class:'campo' }, h('span', {}, et));
+  const righe = [];
+  const cursore = (nome, k) => {
+    const r = h('input', { type:'range', min:0, max:100, step:1, style:'width:100%' }); r.value = obj[k] ?? 50;
+    r.addEventListener('input', () => { preparaUndo(); obj[k] = Number(r.value); aggiorna(); });
+    righe.push({ r, k });
+    return h('label', { style:'display:block;margin-bottom:6px;font-size:12px;color:var(--ui-tenue)' }, nome, r);
+  };
+  g.append(cursore('Sinistra ↔ destra', 'fx'), cursore('Alto ↔ basso', 'fy'));
+  g.append(h('div', { class:'gruppo' }, h('button', { class:'piccolo', onclick: () => {
+    preparaUndo(true); obj.fx = 50; obj.fy = 50; righe.forEach(x => { x.r.value = 50; }); aggiorna();
+  } }, 'Ricentra')));
+  if (obj.modo === 'blocco') g.append(h('div', { class:'vuoto', style:'margin:8px 0 0' }, 'Con la foto selezionata puoi anche trascinarla direttamente nell\'anteprima.'));
+  return g;
+}
+function campoImmagine(et, obj, k) {
+  const inp = h('input', { type:'file', accept:'image/*', hidden:true });
+  inp.addEventListener('change', async () => {
+    if (!inp.files[0]) return;
+    preparaUndo(true); obj[k] = await caricaImmagine(inp.files[0]); tutto();
+  });
+  const ha = !!stato.immagini[obj[k]];
+  return h('div', { class:'campo' }, h('span', {}, et),
+    h('div', { class:'gruppo' },
+      h('button', { onclick: () => inp.click() }, ha ? 'Cambia foto' : 'Scegli foto dal computer'),
+      ha ? h('button', { class:'pericolo', onclick: () => { preparaUndo(true); obj[k] = null; tutto(); } }, 'Togli') : null),
+    inp);
+}
+// Legge un'immagine, la rimpicciolisce (max 1800 px) e la tiene in memoria come dati: così il progetto resta leggero e portatile.
+function caricaImmagine(file) {
+  return new Promise((ris, rif) => {
+    const fr = new FileReader();
+    fr.onerror = () => rif(new Error('non riesco a leggere il file'));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => rif(new Error('formato non leggibile dal browser'));   // ad esempio un HEIC: senza questo la promessa restava in sospeso
+      img.onload = () => {
+        const r = Math.min(1, 1800 / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        const id = 'img' + uid();
+        // PNG solo se l'immagine ha davvero parti trasparenti (ad esempio un logo); le foto in JPEG pesano molto meno
+        const px = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+        let trasparente = false;
+        for (let k = 3; k < px.length; k += 4) { if (px[k] < 250) { trasparente = true; break; } }
+        stato.immagini[id] = trasparente ? c.toDataURL('image/png') : c.toDataURL('image/jpeg', 0.88);
+        ris(id);
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+let modificaAperta = false;   // il menù a tendina "Modifica" del pannello: chiuso finché non lo apri
+let elTrascinato = null;   // indice dell'elemento della lista che stai trascinando (null = nessuno)
+// Sposta l'elemento che sta in posizione "da" così che finisca in posizione "a" (stessa idea di muoviSlide per le slide).
+function spostaBloccoA(da, a) {
+  const L = slideCorrente().blocchi;
+  if (da === a || a < 0 || a >= L.length) return;
+  preparaUndo(true);
+  const [x] = L.splice(da, 1); L.splice(a, 0, x);
+  tutto();
+}
+function disegnaPannello() {
+  const p = $('#colPannello');
+  p.innerHTML = '';
+  const sl = slideCorrente();
+  const b = bloccoSelezionato();
+
+  // Ordine del pannello: prima "Aggiungi elemento"; poi disposizione, lista elementi e "Modifica";
+  // in fondo le due opzioni della slide (logo e numero di pagina).
+  p.append(h('h2', {}, 'Aggiungi elemento'));
+  const ag = h('div', { class:'aggiungi' });
+  Object.entries(DEF).filter(([, d]) => !d.nascosto).forEach(([tipo, d]) => ag.append(h('button', { onclick: () => aggiungiBlocco(tipo) }, '+ ' + d.nome)));
+  p.append(ag);
+
+
+  // proprietà della slide
+  p.append(h('h2', {}, 'Questa slide'));
+  p.append(campoScelta('Dove si dispongono gli elementi', sl, 'allineamento', [['alto','In alto'],['centro','Al centro'],['basso','In basso']]));
+
+  // lista elementi
+  p.append(h('h2', {}, 'Elementi'));
+  if (!sl.blocchi.length) p.append(h('div', { class:'vuoto' }, 'Nessun elemento: aggiungine uno qui sotto.'));
+  const lista = h('div', { class:'elenco' });
+  // Ogni riga si può spostare in due modi: con le frecce ↑ ↓, oppure trascinandola su o giù (come le miniature delle slide).
+  const pulisciSegni = () => lista.querySelectorAll('.el').forEach(r => r.classList.remove('drop-sopra', 'drop-sotto', 'trascinata'));
+  sl.blocchi.forEach((x, i) => {
+    const def = DEF[x.tipo];
+    const txt = (def.etichetta(x) || '').replace(/\n/g, ' ').replace(/\*/g, '');
+    const riga = h('div', { class:'el' + (x.id === selezionato ? ' on' : ''), draggable:'true', title:'Trascina per spostare l\'elemento su o giù', onclick: () => { selezionato = x.id; tutto(); } },
+      h('span', { class:'t' }, def.nome + ': ' + txt),
+      x.libero ? h('span', { title:'libero' }, '✥') : null,
+      h('button', { onclick: e => { e.stopPropagation(); spostaBlocco(x, -1); } }, '↑'),
+      h('button', { onclick: e => { e.stopPropagation(); spostaBlocco(x, 1); } }, '↓')
+    );
+    const sopra = e => { const r = riga.getBoundingClientRect(); return e.clientY < r.top + r.height / 2; };   // il puntatore è nella metà alta della riga?
+    riga.addEventListener('dragstart', e => {
+      elTrascinato = i; e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('application/x-elemento', String(i));   // tipo inventato: così, se lo lasci su un campo di testo, non ci scrive niente
+      riga.classList.add('trascinata');
+    });
+    riga.addEventListener('dragover', e => {
+      if (elTrascinato === null) return;                            // non è una riga della lista (ad esempio un file dal Finder): non ci riguarda
+      e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+      pulisciSegni(); riga.classList.add(sopra(e) ? 'drop-sopra' : 'drop-sotto');
+      lista.querySelectorAll('.el')[elTrascinato]?.classList.add('trascinata');
+    });
+    riga.addEventListener('drop', e => {
+      if (elTrascinato === null) return;
+      e.preventDefault();
+      const da = elTrascinato; elTrascinato = null;
+      let pos = sopra(e) ? i : i + 1;        // posizione di inserimento nella lista com'è ora
+      if (da < pos) pos--;                   // togliendo l'elemento da "da" gli indici successivi scalano di uno
+      pulisciSegni(); spostaBloccoA(da, pos);
+    });
+    riga.addEventListener('dragend', () => { elTrascinato = null; pulisciSegni(); });
+    lista.append(riga);
+  });
+  p.append(lista);
+
+  // modifica dell'elemento selezionato
+  if (b) {
+    const def = DEF[b.tipo];
+    // Menù a tendina, chiuso di partenza: i campi stanno dentro e li apri quando ti servono (testo, dimensione, colore, foto...).
+    // Il testo si può scrivere anche direttamente sulla slide con il doppio clic. Se lo apri, resta aperto anche cambiando elemento.
+    const tendinaModifica = h('details', { class:'sezione' }, h('summary', {}, 'Modifica: ' + def.nome));
+    tendinaModifica.open = modificaAperta;
+    tendinaModifica.addEventListener('toggle', () => { modificaAperta = tendinaModifica.open; });
+    const corpo = h('div', { class:'corpo' });
+    tendinaModifica.append(corpo);
+    p.append(tendinaModifica);
+    def.campi.forEach(c => {
+      if (c.se && !c.se(b)) return;
+      if (c.t === 'area') corpo.append(campoArea(c.et, b, c.k, c.righe));
+      else if (c.t === 'testo') corpo.append(campoTesto(c.et, b, c.k));
+      else if (c.t === 'numero') corpo.append(campoNumero(c.et, b, c.k, c.min, c.max, c.passo));
+      else if (c.t === 'scelta') corpo.append(campoScelta(c.et, b, c.k, c.opz, c.ridisegna));
+      else if (c.t === 'check') corpo.append(campoCheck(c.et, b, c.k));
+      else if (c.t === 'colore') corpo.append(campoColore(c.et, b, c.k));
+      else if (c.t === 'immagine') corpo.append(campoImmagine(c.et, b, c.k));
+      else if (c.t === 'posfoto') corpo.append(campoPosFoto(c.et, b));
+    });
+
+    // posizione: in flusso oppure libera (sta dentro il menù a tendina "Modifica", insieme agli altri campi)
+    if (!(b.tipo === 'foto' && b.modo === 'sfondo')) {
+      corpo.append(h('h2', {}, 'Posizione'));
+      // "In flusso" = si dispone da solo; "Libero" = lo trascini dove vuoi (impostaLibero lo lascia dov'è, senza farlo saltare)
+      corpo.append(h('div', { class:'campo' }, h('span', {}, 'Come lo posizioni'),
+        h('div', { class:'gruppo' },
+          h('button', { class: !b.libero ? 'attivo' : '', onclick: () => impostaLibero(b, false) }, 'In flusso (automatico)'),
+          h('button', { class: b.libero ? 'attivo' : '', onclick: () => impostaLibero(b, true) }, 'Libero (lo trascini)'))));
+      if (b.libero) {
+        const r = h('div', { class:'riga2' });
+        r.append(campoNumero('Da sinistra (x)', b, 'x', -200, 1200, 5), campoNumero('Dall\'alto (y)', b, 'y', -200, 1500, 5));
+        corpo.append(r, campoNumero('Larghezza (px)', b, 'w', 100, 1080, 10));
+      }
+    }
+    p.append(h('div', { class:'aggiungi' },
+      h('button', { onclick: () => duplicaBlocco(b) }, 'Duplica elemento'),
+      h('button', { class:'pericolo', onclick: () => eliminaBlocco(b) }, 'Elimina elemento')));
+  }
+
+  // in fondo: logo e numero di pagina di questa slide
+  p.append(h('h2', {}, 'Logo e numero'));
+  p.append(campoCheck('Mostra il logo', sl, 'logo'));
+  p.append(campoCheck('Mostra il numero di pagina', sl, 'numero'));
+}
+
+// ----- aggiornamenti -----
+function aggiornaMiniature() { disegnaMiniature(); }
+function aggiorna() { disegnaTela(); disegnaMiniature(); salvaAuto(); }      // dopo una modifica di testo/campo (non ridisegna il pannello, così non perdi il cursore)
+function tutto() { disegnaTela(); disegnaMiniature(); disegnaPannello(); salvaAuto(); }
+
+// ----- modifica del testo direttamente sulla slide (doppio clic) -----
+// Doppio clic su un titolo, un testo o un post-it: il testo diventa scrivibile lì dov'è, e vedi già il risultato finale:
+// le parole evidenziate sono gialle, senza asterischi (gli asterischi li vedi solo nel campo del pannello a destra).
+// Come si fa: sulla slide le parti gialle sono pezzetti <span class="ev">; mentre scrivi, da quello che vedi
+// ricostruiamo il testo "vero" con gli asterischi (leggiTesto) e lo mettiamo nel progetto.
+// Finito di scrivere (clic fuori, oppure Esc) la slide si ridisegna normalmente.
+// Mentre scrivi non ridisegniamo la slide (si perderebbe il cursore): aggiorniamo il progetto, le miniature, il campo del
+// pannello a destra e il salvataggio.
+let modifica = null;   // { b: blocco, k: nome del campo, el: elemento scrivibile } oppure null
+
+// Dal contenuto dell'elemento (testo, <br> per gli a capo, <span class="ev"> per il giallo) al testo con gli asterischi.
+function leggiTesto(nodo, dentroEv = false) {
+  let out = '';
+  nodo.childNodes.forEach(n => {
+    if (n.nodeType === 3) out += n.nodeValue;
+    else if (n.nodeName === 'BR') out += '\n';
+    else if (n.nodeType === 1) {
+      const ev = n.classList.contains('ev');
+      const dentro = leggiTesto(n, dentroEv || ev);
+      // gli asterischi vanno riga per riga (altrimenti un giallo su due righe non si rilegge) e attaccati alle parole, non agli spazi
+      if (ev && !dentroEv) out += dentro.split('\n').map(riga => riga.replace(/^(\s*)(.*?)(\s*)$/, (m, a, b, c) => b ? a + '*' + b + '*' + c : m)).join('\n');
+      else if (/^(DIV|P)$/.test(n.nodeName)) out += (out && !out.endsWith('\n') ? '\n' : '') + dentro;   // alcuni browser, andando a capo, creano un blocco
+      else out += dentro;
+    }
+  });
+  return out;
+}
+function leggiTestoEl(el) {
+  let t = leggiTesto(el);
+  if (el.lastChild && el.lastChild.nodeName === 'BR' && t.endsWith('\n')) t = t.slice(0, -1);   // il <br> finale è solo un segnaposto del browser
+  return t.replace(/ /g, ' ');                                                              // spazi "rigidi" che il browser mette in fondo alle righe
+}
+
+// Control+B sul testo della slide: mette o toglie il giallo sulla selezione (o sulla parola dove sta il cursore).
+// Restituisce true se ha cambiato qualcosa.
+function alternaEvidenziaSlide(el) {
+  const s = getSelection(); if (!s.rangeCount) return false;
+  const r = s.getRangeAt(0).cloneRange();
+  if (!el.contains(r.commonAncestorContainer)) return false;
+  const lett = c => c !== undefined && /[\p{L}\p{N}]/u.test(c);   // lettere e numeri (accentate comprese): spazi e apostrofi chiudono la parola
+  if (r.collapsed) {                                               // niente selezione: la parola attorno al cursore
+    const t = r.startContainer; if (t.nodeType !== 3) return false;
+    const v = t.nodeValue; let da = r.startOffset, a = da;
+    while (da > 0 && lett(v[da - 1])) da--;
+    while (a < v.length && lett(v[a])) a++;
+    if (da === a) return false;
+    r.setStart(t, da); r.setEnd(t, a);
+  } else {                                                         // selezione: togliamo gli spazi ai bordi (con un doppio clic il Mac prende anche lo spazio dopo la parola)
+    const f = r.endContainer;
+    if (f.nodeType === 3) { let a = r.endOffset; while (a > 0 && /\s/.test(f.nodeValue[a - 1]) && (f !== r.startContainer || a > r.startOffset)) a--; r.setEnd(f, a); }
+    const i = r.startContainer;
+    if (i.nodeType === 3) { let d = r.startOffset; while (d < i.nodeValue.length && /\s/.test(i.nodeValue[d]) && (i !== r.endContainer || d < r.endOffset)) d++; r.setStart(i, d); }
+    if (r.collapsed) return false;
+  }
+  const gialli = [...el.querySelectorAll('span.ev')].filter(x => r.intersectsNode(x));
+  if (gialli.length) {                                             // c'è già del giallo nella selezione: lo si toglie (per intero, parola per parola)
+    gialli.forEach(x => { const f = document.createDocumentFragment(); while (x.firstChild) f.appendChild(x.firstChild); x.replaceWith(f); });
+    el.normalize();
+  } else {                                                         // altrimenti si mette: la selezione finisce dentro un <span class="ev">
+    const span = document.createElement('span'); span.className = 'ev';
+    span.appendChild(r.extractContents()); r.insertNode(span);
+    r.selectNodeContents(span); s.removeAllRanges(); s.addRange(r);
+  }
+  return true;
+}
+
+// Il menù "Modifica" del pannello si apre da solo quando inizi a scrivere sulla slide e si richiude quando smetti.
+// Se lo avevi già aperto tu, a mano, prima di iniziare, resta com'era (altrimenti ti si chiuderebbe mentre lo usi).
+function impostaTendinaModifica(aperta) {
+  modificaAperta = aperta;
+  const det = document.querySelector('#colPannello details.sezione');
+  if (det) det.open = aperta;
+}
+function iniziaModifica(b, k, el) {
+  if (modifica) terminaModifica();
+  modifica = { b, k, el, apertaPrima: modificaAperta };
+  impostaTendinaModifica(true);
+  el.contentEditable = 'true';
+  el.innerHTML = fmt(b[k], true);   // come sulla slide: giallo vero
+  el.classList.add('in-modifica');
+  el.addEventListener('input', () => {
+    const testo = leggiTestoEl(el);
+    preparaUndo(); b[k] = testo;
+    if (selezionato === b.id) {
+      const campo = document.querySelector('#colPannello textarea[data-k="' + k + '"]'); if (campo) campo.value = testo;   // qui gli asterischi si vedono
+      const voce = document.querySelector('#colPannello .elenco .el.on .t');
+      if (voce) voce.textContent = DEF[b.tipo].nome + ': ' + (DEF[b.tipo].etichetta(b) || '').replace(/\n/g, ' ').replace(/\*/g, '');
+    }
+    disegnaMiniature(); salvaAuto();
+  });
+  // incolla solo testo semplice (niente caratteri, colori e dimensioni copiati da altre pagine)
+  el.addEventListener('paste', e => { e.preventDefault(); document.execCommand('insertText', false, e.clipboardData.getData('text/plain')); });
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.preventDefault(); el.blur(); terminaModifica(); }   // terminaModifica non fa nulla se il blur l'ha già chiamata
+    else if (e.key === 'Enter') { e.preventDefault(); document.execCommand('insertLineBreak'); }   // a capo semplice (<br>), come nel resto della slide
+  });
+  el.addEventListener('blur', () => { if (modifica && modifica.el === el) terminaModifica(); });
+  el.focus();
+  const r = document.createRange(); r.selectNodeContents(el); r.collapse(false);   // cursore alla fine del testo
+  const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+}
+function terminaModifica() {
+  if (!modifica) return;
+  const { el, apertaPrima } = modifica; modifica = null;   // prima si azzera: ridisegnando, il browser fa partire un altro "blur"
+  el.removeAttribute('contenteditable');
+  impostaTendinaModifica(apertaPrima);
+  disegnaTela(); salvaAuto();   // le miniature sono già aggiornate (e non le ricostruiamo ora, o un clic su una miniatura andrebbe perso)
+}
+// Se mentre scrivi sulla slide clicchi dentro il pannello a destra (ad esempio nel campo di testo del menù "Modifica"),
+// la scrittura sulla slide finisce, ma il menù deve restare aperto: ci vuoi lavorare. Il clic nel pannello arriva PRIMA
+// della fine della modifica (che avviene quando il cursore lascia l'elemento), quindi basta segnarlo qui.
+$('#colPannello').addEventListener('pointerdown', () => { if (modifica) modifica.apertaPrima = true; }, true);
+$('#tela').addEventListener('dblclick', e => {
+  // Cosa c'è davvero sotto il puntatore? Non ci si può fidare di e.target: il primo clic ha "catturato" il puntatore sull'intero
+  // elemento (serve al trascinamento), quindi per un post-it e.target è il post-it intero, non il testo grande o quello piccolo.
+  const sotto = document.elementFromPoint(e.clientX, e.clientY) || e.target;
+  const nodo = sotto.closest?.('[data-id]') || e.target.closest?.('[data-id]'); if (!nodo) return;
+  const b = slideCorrente().blocchi.find(x => x.id === nodo.dataset.id); if (!b) return;
+  const el = sotto.closest('[data-campo]') || nodo.querySelector('[data-campo]');   // sul bordo di un post-it (fuori dai due testi) si modifica il testo grande
+  if (!el || !nodo.contains(el)) return;
+  if (modifica && modifica.el === el) return;
+  if (selezionato !== b.id) { selezionato = b.id; disegnaPannello(); }
+  iniziaModifica(b, el.dataset.campo, el);
+});
+
+// ----- trascinamento degli elementi liberi e selezione col click -----
+(function () {
+  const tela = $('#tela');
+  let drag = null;
+  let pan = null;   // trascinamento della foto DENTRO il suo riquadro (cambia fx e fy, non la posizione del blocco)
+  let riordina = null;   // trascinamento di un elemento in flusso su o giù, per cambiarne l'ordine (come le slide a sinistra)
+
+  // Cancella la linea oro e rimette l'elemento com'era.
+  function fineRiordino() {
+    tela.querySelector('.segno-drop')?.remove();
+    if (riordina) riordina.nodo.style.opacity = '';
+  }
+  tela.addEventListener('pointerdown', e => {
+    let bersaglio = e.target;
+    if (modifica) {
+      if (modifica.el.contains(bersaglio)) return;   // clic dentro il testo che stai scrivendo: serve al cursore e alla selezione, niente trascinamento
+      terminaModifica();                             // clic altrove sulla slide: finisce la modifica. La slide si ridisegna, ma di "bersaglio" serve solo l'id dell'elemento cliccato, che resta leggibile
+    }
+    const n = bersaglio.closest?.('[data-id]');
+    if (!n) { if (selezionato) { selezionato = null; tutto(); } return; }
+    const id = n.dataset.id;
+    const b = slideCorrente().blocchi.find(x => x.id === id);
+    const eraSelezionato = selezionato === id;
+    document.activeElement?.blur?.();   // se stavi scrivendo in un campo del pannello, il cursore esce: così il tasto cancella agisce sull'elemento, non sulle lettere
+    if (selezionato !== id) { selezionato = id; disegnaTela(); disegnaPannello(); }
+    const nodo = document.querySelector('#tela [data-id="' + id + '"]');
+    if (b && b.libero && nodo) {
+      drag = { b, nodo, px:e.clientX, py:e.clientY, x0:b.x, y0:b.y, mosso:false };
+      nodo.setPointerCapture?.(e.pointerId);
+      e.preventDefault();
+    } else if (b && b.tipo === 'foto' && b.modo === 'blocco' && eraSelezionato && nodo && stato.immagini[b.img]) {
+      // Foto in riquadro già selezionata: il trascinamento la fa slittare. Serve la sua dimensione reale per sapere
+      // di quanto sporge dal riquadro; la leggiamo ora (l'immagine è già in memoria, quindi è pronta prima del primo movimento).
+      pan = { b, nodo, px:e.clientX, py:e.clientY, fx0:b.fx ?? 50, fy0:b.fy ?? 50, mosso:false, nat:null };
+      const im = new Image(); im.onload = () => { if (pan) pan.nat = { w:im.naturalWidth, h:im.naturalHeight }; };
+      im.src = stato.immagini[b.img];
+      nodo.setPointerCapture?.(e.pointerId);
+      e.preventDefault();
+    } else if (b && !b.libero && nodo) {
+      // Elemento in flusso: se lo trascini su o giù ne cambi l'ordine. (La foto in riquadro già selezionata fa eccezione:
+      // lì il trascinamento la fa slittare; per spostarla in altro modo usa le frecce nella lista o seleziona prima un altro elemento.)
+      riordina = { b, nodo, px:e.clientX, py:e.clientY, mosso:false, dest:null };
+      nodo.setPointerCapture?.(e.pointerId);
+      e.preventDefault();
+    }
+  });
+  window.addEventListener('pointermove', e => {
+    if (riordina) {
+      if (!riordina.mosso && Math.abs(e.clientX - riordina.px) + Math.abs(e.clientY - riordina.py) < 5) return;   // sotto i 5 px è un semplice clic
+      riordina.mosso = true; riordina.nodo.style.opacity = '.35';
+      // Gli altri elementi in flusso, nell'ordine in cui compaiono sulla slide. Cerchiamo il primo che sta "dopo" il puntatore:
+      // l'elemento trascinato andrà davanti a lui. Se non c'è, andrà in fondo.
+      const altri = [...tela.querySelectorAll('.flusso > [data-id]')].filter(n => n !== riordina.nodo);
+      let davanti = null;
+      for (const n of altri) {
+        const r = n.getBoundingClientRect();
+        const metaRiga = n.classList.contains('w-met') && e.clientY >= r.top && e.clientY <= r.bottom;   // post-it "metà": sta affiancato a un altro, quindi in quella riga conta la posizione orizzontale
+        if (metaRiga ? e.clientX < r.left + r.width / 2 : e.clientY < r.top + r.height / 2) { davanti = n; break; }
+      }
+      riordina.dest = davanti ? davanti.dataset.id : null;
+      // Linea oro (coordinate della slide da 1080: i rettangoli del browser sono in scala, quindi si divide per "scala")
+      const tr = tela.getBoundingClientRect();
+      let segno = tela.querySelector('.segno-drop'); if (!segno) { segno = h('div', { class:'segno-drop' }); tela.append(segno); }
+      const pos = (l, t, w, hh) => { segno.style.left = l + 'px'; segno.style.top = t + 'px'; segno.style.width = w + 'px'; segno.style.height = hh + 'px'; segno.style.display = 'block'; };
+      if (davanti) {
+        const r = davanti.getBoundingClientRect();
+        const stessaRiga = davanti.classList.contains('w-met') && e.clientY >= r.top && e.clientY <= r.bottom;
+        if (stessaRiga) pos((r.left - tr.left) / scala - 24, (r.top - tr.top) / scala, 8, r.height / scala);   // barra verticale: tra due post-it affiancati
+        else pos(90, (r.top - tr.top) / scala - 24, 900, 8);                                                      // linea orizzontale sopra l'elemento
+      } else if (altri.length) {
+        const r = altri[altri.length - 1].getBoundingClientRect();
+        pos(90, (r.bottom - tr.top) / scala + 16, 900, 8);                                                        // in fondo, sotto l'ultimo
+      } else segno.style.display = 'none';
+      return;
+    }
+    if (pan) {
+      if (!pan.nat) return;
+      const dx = (e.clientX - pan.px) / scala, dy = (e.clientY - pan.py) / scala;   // spostamento in pixel della slide (1080x1350)
+      if (!pan.mosso && Math.abs(dx) + Math.abs(dy) < 3) return;
+      if (!pan.mosso) { preparaUndo(true); pan.mosso = true; }
+      // Con "cover" la foto viene ingrandita finché copre il riquadro: la parte che avanza (sporgenza) è quella che si può far scorrere.
+      // Se trascino la foto di d pixel, la percentuale cambia di d / sporgenza (col segno meno: trascinare giù mostra la parte più in alto).
+      const W = pan.nodo.offsetWidth, H = pan.nodo.offsetHeight;
+      const ingr = Math.max(W / pan.nat.w, H / pan.nat.h);
+      const spX = pan.nat.w * ingr - W, spY = pan.nat.h * ingr - H;
+      const limita = v => Math.max(0, Math.min(100, Math.round(v)));
+      if (spX > 0.5) pan.b.fx = limita(pan.fx0 - dx / spX * 100);
+      if (spY > 0.5) pan.b.fy = limita(pan.fy0 - dy / spY * 100);
+      pan.nodo.style.backgroundPosition = posizioneFoto(pan.b);
+      return;
+    }
+    if (!drag) return;
+    const dx = (e.clientX - drag.px) / scala, dy = (e.clientY - drag.py) / scala;
+    if (!drag.mosso && Math.abs(dx) + Math.abs(dy) < 3) return;
+    if (!drag.mosso) { preparaUndo(true); drag.mosso = true; }
+    drag.b.x = Math.round(drag.x0 + dx); drag.b.y = Math.round(drag.y0 + dy);
+    drag.nodo.style.left = drag.b.x + 'px'; drag.nodo.style.top = drag.b.y + 'px';
+  });
+  window.addEventListener('pointerup', () => {
+    if (riordina) {
+      const { b, mosso, dest } = riordina;
+      fineRiordino(); riordina = null;
+      if (mosso) {
+        const L = slideCorrente().blocchi;
+        const ordinePrima = L.map(x => x.id).join();
+        const senza = L.filter(x => x !== b);   // la lista senza l'elemento trascinato
+        let i;
+        if (dest) i = senza.findIndex(x => x.id === dest);   // davanti all'elemento di destinazione
+        else {
+          // in fondo al flusso: dopo l'ultimo elemento in flusso (gli elementi liberi e la foto di sfondo non contano)
+          i = senza.length;
+          for (let k = senza.length - 1; k >= 0; k--) if (!senza[k].libero && !(senza[k].tipo === 'foto' && senza[k].modo === 'sfondo')) { i = k + 1; break; }
+        }
+        senza.splice(i, 0, b);
+        if (senza.map(x => x.id).join() !== ordinePrima) { preparaUndo(true); L.splice(0, L.length, ...senza); }
+        tutto();   // anche se l'ordine non cambia: ridisegna e toglie l'opacità
+      }
+    }
+    if (pan) { const m = pan.mosso; pan = null; if (m) tutto(); }   // tutto() aggiorna anche i cursori nel pannello e le miniature
+    if (drag) { const m = drag.mosso; drag = null; if (m) tutto(); }
+  });
+})();
+
+// ----- immagini trascinate dal Finder -----
+// Prima il browser, vedendo un file lasciato sulla pagina, lo apriva in una nuova scheda (e se era la stessa scheda
+// perdevi il lavoro). Ora intercettiamo il "drop":
+//   - sopra la slide al centro: l'immagine va su quella slide;
+//   - sopra una miniatura a sinistra: va su quella slide (che diventa la slide corrente);
+//   - altrove: non succede niente, ma almeno il browser non lascia la pagina.
+// Dove va a finire l'immagine, sulla slide: se l'hai lasciata sopra una foto in riquadro la sostituisce; altrimenti riempie
+// una foto ancora vuota della slide (ad esempio quella della copertina); altrimenti aggiunge una nuova foto "come riquadro".
+(function () {
+  const haFile = e => [...(e.dataTransfer?.types || [])].includes('Files');   // il trascinamento contiene file (non testo o link)
+  const eImmagine = f => f.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|avif|bmp|heic|heif)$/i.test(f.name);
+  const pulisci = () => document.querySelectorAll('.drop-file').forEach(n => n.classList.remove('drop-file'));
+
+  async function inserisci(files, indiceSlide, idFotoSotto) {
+    // 1) leggiamo le immagini (se una non è leggibile la saltiamo e lo diciamo)
+    const ids = []; const nonLette = [];
+    for (const f of files) {
+      try { ids.push(await caricaImmagine(f)); } catch (err) { nonLette.push(f.name + ' (' + err.message + ')'); }
+    }
+    if (!ids.length) { avviso('Non riesco a leggere ' + (nonLette[0] || 'l\'immagine') + '.'); return; }
+    // 2) le mettiamo nella slide
+    preparaUndo(true);
+    if (stato.corrente !== indiceSlide) { stato.corrente = indiceSlide; selezionato = null; }
+    const L = slideCorrente().blocchi;
+    let ultimo = null;
+    ids.forEach((id, n) => {
+      let dest = null;
+      if (n === 0 && idFotoSotto) dest = L.find(b => b.id === idFotoSotto && b.tipo === 'foto') || null;   // lasciata sopra una foto: la sostituisce
+      if (!dest) dest = L.find(b => b.tipo === 'foto' && !stato.immagini[b.img]) || null;                  // altrimenti la prima foto vuota
+      if (dest) dest.img = id;
+      else { dest = B('foto', { img:id, modo:'blocco' }); L.push(dest); }                                    // altrimenti una foto nuova in fondo
+      ultimo = dest;
+    });
+    selezionato = ultimo.id;
+    tutto();
+    avviso(ids.length === 1 ? 'Immagine inserita.' : ids.length + ' immagini inserite.' + (nonLette.length ? ' Non letta: ' + nonLette.join(', ') + '.' : ''), 'Annulla', annulla);
+  }
+
+  window.addEventListener('dragover', e => {
+    if (!haFile(e)) return;
+    e.preventDefault();   // senza questo il browser non permette il drop e, al rilascio, apre il file
+    const zona = e.target.closest?.('#colCanvas, .voce');
+    e.dataTransfer.dropEffect = zona ? 'copy' : 'none';
+    pulisci(); zona?.classList.add('drop-file');   // contorno oro tratteggiato sulla zona che accoglierà l'immagine
+  });
+  window.addEventListener('dragleave', e => { if (haFile(e) && !e.relatedTarget) pulisci(); });   // il file è uscito dalla finestra
+  window.addEventListener('drop', e => {
+    if (!haFile(e)) return;
+    e.preventDefault(); pulisci();
+    const files = [...e.dataTransfer.files].filter(eImmagine);
+    if (!e.dataTransfer.files.length) return;
+    if (!files.length) { avviso('Il file trascinato non è un\'immagine.'); return; }
+    const voce = e.target.closest?.('.voce');
+    const canvas = e.target.closest?.('#colCanvas');
+    if (voce) inserisci(files, [...document.querySelectorAll('#colSlide .voce')].indexOf(voce), null);
+    else if (canvas) inserisci(files, stato.corrente, e.target.closest('[data-id]')?.dataset.id || null);
+    else avviso('Lascia l\'immagine sopra la slide (o su una miniatura) per inserirla.');
+  });
+})();
+
+// =====================================================================
+// TEMPLATE, IMPOSTAZIONI, SALVATAGGIO, ESPORTAZIONE
+// =====================================================================
+$('#bTemplate').onclick = () => {
+  const g = $('#grigliaTemplate'); g.innerHTML = '';
+  TEMPLATE.forEach(t => g.append(h('button', { onclick: () => {
+    preparaUndo(true);
+    const nuova = t.crea();
+    stato.slide.splice(stato.corrente + 1, 0, nuova); stato.corrente++; selezionato = null;
+    $('#dlgTemplate').close(); tutto();
+  } }, h('b', {}, t.nome))));
+  $('#dlgTemplate').showModal();
+};
+$('#chiudiTemplate').onclick = () => $('#dlgTemplate').close();
+$('#bUndo').onclick = annulla;
+
+// ----- menu a tendina in alto (File, Esporta) -----
+function chiudiMenu() { document.querySelectorAll('.menu.aperto').forEach(m => m.classList.remove('aperto')); }
+document.querySelectorAll('.menu').forEach(m => {
+  m.querySelector(':scope > button').addEventListener('click', e => {
+    e.stopPropagation();
+    const eraAperto = m.classList.contains('aperto'); chiudiMenu();
+    if (!eraAperto) m.classList.add('aperto');
+  });
+  m.querySelector('.tendina').addEventListener('click', chiudiMenu);   // scegli una voce: il menu si chiude
+});
+document.addEventListener('click', chiudiMenu);
+window.addEventListener('keydown', e => { if (e.key === 'Escape') chiudiMenu(); });
+// Tasto "cancella" del Mac (quello con la freccia all'indietro: per il browser è "Backspace"; vale anche il "Canc" di altre tastiere):
+// elimina l'elemento selezionato. Non fa nulla se stai scrivendo in un campo (lì cancella le lettere) o se è aperta una finestra.
+window.addEventListener('keydown', e => {
+  if (e.key !== 'Backspace' && e.key !== 'Delete') return;
+  if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+  const a = document.activeElement;
+  if (a && (['INPUT', 'TEXTAREA', 'SELECT'].includes(a.tagName) || a.isContentEditable)) return;
+  if (document.querySelector('dialog[open]')) return;
+  const b = bloccoSelezionato(); if (!b) return;
+  e.preventDefault();   // altrimenti alcuni browser tornano alla pagina precedente
+  eliminaBlocco(b);
+  avviso('Elemento eliminato.', 'Annulla', annulla);   // come per le slide: se ti sei sbagliato lo riprendi
+});
+// ----- scorciatoia Control+B (o Cmd+B): evidenzia in giallo -----
+// Il giallo si ottiene mettendo la parola tra asterischi (*così*). Con Control+B lo fa l'editor:
+//   - con del testo selezionato mette gli asterischi attorno alla selezione (uno per ogni riga, se vai a capo);
+//   - senza selezione evidenzia la parola dove sta il cursore;
+//   - se il testo è già evidenziato, rimette tutto com'era (toglie gli asterischi).
+// Funziona sia nei campi di testo del pannello a destra sia scrivendo direttamente sulla slide (doppio clic).
+// Funzione pura: riceve il testo e l'intervallo selezionato [da, a), restituisce il testo nuovo e il nuovo intervallo.
+function alternaEvidenzia(testo, da, a) {
+  const lett = c => c !== undefined && /[\p{L}\p{N}]/u.test(c);   // lettere e numeri (accentate comprese): un apostrofo o uno spazio chiudono la parola
+  if (da === a) {                                                  // niente selezione: prendiamo la parola attorno al cursore
+    while (da > 0 && lett(testo[da - 1])) da--;
+    while (a < testo.length && lett(testo[a])) a++;
+    if (da === a) return null;                                     // il cursore non è su una parola: niente da fare
+  }
+  // già evidenziato? Gli asterischi stanno subito fuori dalla selezione, oppure dentro, ai suoi estremi
+  if (testo[da - 1] === '*' && testo[a] === '*') return { testo: testo.slice(0, da - 1) + testo.slice(da, a) + testo.slice(a + 1), da: da - 1, a: a - 1 };
+  const sel = testo.slice(da, a);
+  if (sel.includes('*')) { const pulito = sel.replace(/\*/g, ''); return { testo: testo.slice(0, da) + pulito + testo.slice(a), da, a: da + pulito.length }; }
+  // altrimenti si evidenzia: righe separate, ognuna senza gli spazi ai bordi (così gli asterischi stanno attaccati alle parole)
+  let fuori = testo.slice(0, da), nuovo = '', primo = null, ultimo = null;
+  sel.split('\n').forEach((riga, n) => {
+    if (n) nuovo += '\n';
+    const m = riga.match(/^(\s*)(.*?)(\s*)$/);
+    if (!m[2]) { nuovo += riga; return; }
+    nuovo += m[1];
+    if (primo === null) primo = fuori.length + nuovo.length;
+    nuovo += '*' + m[2] + '*';
+    ultimo = fuori.length + nuovo.length;
+    nuovo += m[3];
+  });
+  if (primo === null) return null;                                 // la selezione era fatta solo di spazi
+  return { testo: fuori + nuovo + testo.slice(a), da: primo, a: ultimo };
+}
+window.addEventListener('keydown', e => {
+  if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== 'b') return;
+  const el = document.activeElement;
+  if (el && el.tagName === 'TEXTAREA') {                           // campo di testo del pannello
+    const r = alternaEvidenzia(el.value, el.selectionStart, el.selectionEnd);
+    e.preventDefault(); if (!r) return;
+    el.value = r.testo; el.setSelectionRange(r.da, r.a);
+    el.dispatchEvent(new Event('input', { bubbles: true }));       // così il progetto e la slide si aggiornano come se avessi scritto
+  } else if (modifica && el === modifica.el) {                     // testo scritto direttamente sulla slide
+    e.preventDefault();
+    if (alternaEvidenziaSlide(el)) el.dispatchEvent(new Event('input', { bubbles: true }));   // aggiorna progetto e pannello
+  }
+});
+// Control+Z (o Cmd+Z): torna indietro di un passo, dovunque tu sia, anche con il cursore dentro un campo di testo o mentre scrivi
+// direttamente sulla slide. Lo fa sempre l'editor (non il browser), così scrivere, spostare, evidenziare, eliminare e aggiungere
+// stanno nella stessa storia, fino a 60 passi (come il pulsante "Annulla"). Solo se non c'è più nulla da annullare, dentro un campo
+// di testo resta il comportamento normale del browser.
+window.addEventListener('keydown', e => {
+  if (!(e.metaKey || e.ctrlKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== 'z') return;
+  const a = document.activeElement;
+  const inCampo = !!a && (['INPUT', 'TEXTAREA', 'SELECT'].includes(a.tagName) || a.isContentEditable);
+  if (inCampo && !pilaUndo.length) return;
+  e.preventDefault();
+  if (modifica) { const { el, apertaPrima } = modifica; modifica = null; el.removeAttribute('contenteditable'); modificaAperta = apertaPrima; }   // se stavi scrivendo sulla slide, la modifica finisce (e il menù torna com'era): la slide viene ridisegnata
+  if (inCampo) a.blur();
+  annulla();
+  if ($('#dlgImpostazioni').open) disegnaImpostazioni();   // se è aperta la finestra dei colori, i suoi campi si aggiornano
+});
+
+// ----- impostazioni (colori e logo) -----
+$('#bImpostazioni').onclick = () => { disegnaImpostazioni(); $('#dlgImpostazioni').showModal(); };
+$('#chiudiImpostazioni').onclick = () => { $('#dlgImpostazioni').close(); tutto(); };
+function campoColoreImp(et, obj, k) {
+  const i = h('input', { type:'color' }); i.value = obj[k];
+  i.addEventListener('input', () => { preparaUndo(); obj[k] = i.value; disegnaTela(); disegnaMiniature(); salvaAuto(); });
+  return h('label', { class:'campo' }, h('span', {}, et), i);
+}
+// cursore (slider) per un valore numerico delle impostazioni, con il valore scritto accanto
+function campoRangeImp(et, obj, k, min, max, passo, formato) {
+  const val = h('b', {}, formato(obj[k]));
+  const r = h('input', { type:'range', min, max, step:passo, style:'width:100%' }); r.value = obj[k];
+  r.addEventListener('input', () => { preparaUndo(); obj[k] = Number(r.value); val.textContent = formato(obj[k]); disegnaTela(); disegnaMiniature(); salvaAuto(); });
+  return h('label', { class:'campo', style:'margin-top:8px' }, h('span', {}, et + ': ', val), r);
+}
+function disegnaImpostazioni() {
+  const c = $('#contenutoImpostazioni'); c.innerHTML = ''; const I = stato.impostazioni;
+  c.append(h('div', { class:'riga2' },
+    campoColoreImp('Sfondo delle slide', I, 'fondo'), campoColoreImp('Titoli', I, 'testo'),
+    campoColoreImp('Parole evidenziate (*così*)', I, 'evidenzia'), campoColoreImp('Parole evidenziate nei post-it', I, 'evidenziaPostit'), campoColoreImp('Testo secondario', I, 'grigio'),
+    campoColoreImp('Scritte nei post-it', I, 'inchiostro')));
+  c.append(h('h2', { style:'margin:10px 0 6px;font-size:12px;color:var(--ui-tenue)' }, 'COLORI DEI POST-IT'));
+  const r = h('div', { class:'riga2' });
+  Object.keys(I.postit).forEach(n => r.append(campoColoreImp(n, I.postit, n)));
+  c.append(r);
+  c.append(h('h2', { style:'margin:10px 0 6px;font-size:12px;color:var(--ui-tenue)' }, 'LOGO (si mette in alto a sinistra su tutte le slide)'));
+  const inp = h('input', { type:'file', accept:'image/*', hidden:true });
+  inp.addEventListener('change', async () => { if (!inp.files[0]) return; preparaUndo(true); I.logo = await caricaImmagine(inp.files[0]); disegnaImpostazioni(); disegnaTela(); disegnaMiniature(); salvaAuto(); });
+  c.append(h('div', { class:'gruppo' },
+    h('button', { onclick: () => inp.click() }, stato.immagini[I.logo] ? 'Cambia logo' : 'Carica logo (PNG con sfondo trasparente è l\'ideale)'),
+    stato.immagini[I.logo] ? h('button', { class:'pericolo', onclick: () => { preparaUndo(true); I.logo = null; disegnaImpostazioni(); disegnaTela(); disegnaMiniature(); salvaAuto(); } }, 'Togli logo') : null, inp));
+  c.append(campoRangeImp('Larghezza del logo', I, 'logoLarg', 120, 600, 10, v => v + ' px'));
+
+  // sfondo comune a tutte le slide
+  c.append(h('h2', { style:'margin:14px 0 6px;font-size:12px;color:var(--ui-tenue)' }, 'SFONDO (uguale per tutte le slide)'));
+  const inpS = h('input', { type:'file', accept:'image/*', hidden:true });
+  inpS.addEventListener('change', async () => { if (!inpS.files[0]) return; preparaUndo(true); I.sfondoImg = await caricaImmagine(inpS.files[0]); disegnaImpostazioni(); disegnaTela(); disegnaMiniature(); salvaAuto(); });
+  const haS = !!stato.immagini[I.sfondoImg];
+  c.append(h('div', { class:'gruppo' },
+    h('button', { onclick: () => inpS.click() }, haS ? 'Cambia sfondo' : 'Carica un\'immagine di sfondo'),
+    haS ? h('button', { class:'pericolo', onclick: () => { preparaUndo(true); I.sfondoImg = null; disegnaImpostazioni(); disegnaTela(); disegnaMiniature(); salvaAuto(); } }, 'Togli sfondo (usa il colore)') : null,
+    HAS_ASSET ? h('button', { onclick: () => { preparaUndo(true); stato.immagini.sfondo = ASSET.sfondo; I.sfondoImg = 'sfondo'; disegnaImpostazioni(); disegnaTela(); disegnaMiniature(); salvaAuto(); } }, 'Rimetti quello di UNDER') : null,
+    inpS));
+  c.append(campoRangeImp('Scurisci lo sfondo', I, 'sfondoVelo', 0, 0.7, 0.02, v => Math.round(v * 100) + '%'));
+
+  c.append(h('div', { style:'margin-top:12px' },
+    (() => { const k = h('input', { type:'checkbox' }); k.checked = I.logoMostra; k.onchange = () => { I.logoMostra = k.checked; disegnaTela(); disegnaMiniature(); salvaAuto(); }; return h('label', { class:'campo', style:'display:flex;gap:8px;align-items:center' }, k, h('span', { style:'margin:0' }, 'Mostra il logo')); })(),
+    (() => { const k = h('input', { type:'checkbox' }); k.checked = I.numeri; k.onchange = () => { I.numeri = k.checked; disegnaTela(); disegnaMiniature(); salvaAuto(); }; return h('label', { class:'campo', style:'display:flex;gap:8px;align-items:center' }, k, h('span', { style:'margin:0' }, 'Mostra i numeri di pagina')); })(),
+    h('button', { onclick: () => { preparaUndo(true); avviso('Colori di partenza rimessi.', 'Annulla', () => { annulla(); disegnaImpostazioni(); }); const { logo, sfondoImg, logoLarg, sfondoVelo } = I; stato.impostazioni = { ...clona(IMPOSTAZIONI_DEFAULT), logo, sfondoImg, logoLarg, sfondoVelo }; disegnaImpostazioni(); disegnaTela(); disegnaMiniature(); salvaAuto(); } }, 'Ripristina i colori di partenza')));
+}
+
+// ----- salva / apri progetto (file .carosello che puoi tenere dove vuoi; dentro è un normale JSON) -----
+function scarica(blob, nome) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome;
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+// ----- controllo "hai salvato?" -----
+// Confrontiamo il progetto di adesso con quello che avevamo l'ultima volta che l'hai salvato (o aperto) da file.
+// Gli id casuali di slide ed elementi non contano, e nemmeno quale slide hai selezionato: conta solo il contenuto.
+const CHIAVE_FILE = CHIAVE + '-salvato';
+// L'ordine dei campi può cambiare dopo il caricamento (stesso contenuto, altra sequenza): li ordiniamo prima di confrontare.
+const ordinaChiavi = v => Array.isArray(v) ? v.map(ordinaChiavi)
+  : (v && typeof v === 'object') ? Object.fromEntries(Object.keys(v).sort().map(k => [k, ordinaChiavi(v[k])])) : v;
+const improntaDi = p => JSON.stringify(ordinaChiavi({ impostazioni: p.impostazioni, slide: p.slide })).replace(/"id":"[^"]*"/g, '');
+// Se non sappiamo nulla (prima volta), il progetto di partenza intatto conta come "salvato": non c'è niente da perdere.
+let improntaSalvata = (() => {
+  try { const x = localStorage.getItem(CHIAVE_FILE); if (x) return x; } catch (e) { /* si usa quello di partenza */ }
+  return improntaDi(progettoIniziale());
+})();
+function segnaSalvato() {
+  improntaSalvata = improntaDi(stato);
+  try { localStorage.setItem(CHIAVE_FILE, improntaSalvata); } catch (e) { /* resta valido finché la pagina è aperta */ }
+}
+const cisonoModificheNonSalvate = () => improntaDi(stato) !== improntaSalvata;
+
+function salvaProgetto() {
+  scarica(new Blob([JSON.stringify(statoPerSalvare())], { type:'application/octet-stream' }), 'progetto.carosello');   // octet-stream: così il browser non cambia l'estensione
+  segnaSalvato();
+}
+$('#bSalva').onclick = salvaProgetto;
+$('#bApri').onclick = () => $('#fileProgetto').click();
+
+// Riparte dalle 3 slide del preset. Il lavoro attuale si recupera con "Annulla" nell'avviso, finché non chiudi la pagina.
+function nuovoProgetto() {
+  preparaUndo(true);
+  const improntaPrima = improntaSalvata;   // se poi premi "Annulla", torna anche lo stato "salvato / non salvato" di prima
+  const vecchio = stato.immagini;
+  stato = progettoIniziale();
+  Object.assign(stato.immagini, vecchio);   // teniamo in memoria le foto vecchie, così "Annulla" le ritrova
+  selezionato = null;
+  tutto();
+  segnaSalvato();                           // un progetto appena creato non ha niente da perdere
+  avviso('Nuovo progetto: ripartito dalle 3 slide iniziali.', 'Annulla', () => {
+    annulla();
+    improntaSalvata = improntaPrima;
+    try { localStorage.setItem(CHIAVE_FILE, improntaPrima); } catch (e) { /* ok */ }
+  });
+}
+$('#bNuovo').onclick = () => {
+  if (!cisonoModificheNonSalvate()) { nuovoProgetto(); return; }
+  $('#dlgSalvare').showModal();             // ci sono modifiche non salvate: chiediamo prima
+};
+$('#salvaAnnulla').onclick = () => $('#dlgSalvare').close();
+$('#salvaNonSalvare').onclick = () => { $('#dlgSalvare').close(); nuovoProgetto(); };
+$('#salvaESegui').onclick = () => { salvaProgetto(); $('#dlgSalvare').close(); nuovoProgetto(); };
+$('#fileProgetto').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const v = JSON.parse(await f.text());
+    if (!v.slide || !v.slide.length) throw new Error('file non valido');
+    preparaUndo(true); stato = normalizza(v); selezionato = null; tutto(); segnaSalvato();   // il file aperto è già su disco
+  } catch (err) { avviso('Non riesco ad aprire questo file: ' + err.message); }
+  e.target.value = '';
+};
+
+// ----- esporta PNG -----
+async function slideInCanvas(i) {
+  await document.fonts.ready;
+  const fuori = $('#fuori'); fuori.innerHTML = '';
+  const el = renderSlide(stato.slide[i], i, { anteprima:false });   // niente segnaposto né selezione
+  fuori.append(el);
+  const c = await html2canvas(el, { scale:1, width:1080, height:1350, backgroundColor:null, useCORS:true, logging:false });
+  fuori.innerHTML = '';
+  return c;
+}
+const aBlob = c => new Promise(ris => c.toBlob(ris, 'image/png'));
+const num = i => String(i + 1).padStart(2, '0');
+
+$('#bPng').onclick = async () => {
+  const bt = $('#bPng'); bt.disabled = true; $('#stato').textContent = 'Creo il PNG…';
+  try { scarica(await aBlob(await slideInCanvas(stato.corrente)), 'slide_' + num(stato.corrente) + '.png'); $('#stato').textContent = 'PNG pronto'; }
+  catch (e) { avviso('Errore nell\'esportazione: ' + e.message); }
+  bt.disabled = false;
+};
+$('#bZip').onclick = async () => {
+  const bt = $('#bZip'); bt.disabled = true;
+  try {
+    const zip = new JSZip();
+    for (let i = 0; i < stato.slide.length; i++) {
+      $('#stato').textContent = 'Esporto ' + (i + 1) + '/' + stato.slide.length + '…';
+      zip.file('slide_' + num(i) + '.png', await aBlob(await slideInCanvas(i)));
+    }
+    scarica(await zip.generateAsync({ type:'blob' }), 'carosello.zip'); $('#stato').textContent = 'ZIP pronto';
+  } catch (e) { avviso('Errore nell\'esportazione: ' + e.message); }
+  bt.disabled = false;
+};
+
+// ----- avvio -----
+stato = carica();
+if (improntaDi(stato) === improntaDi(progettoIniziale())) segnaSalvato();   // il preset appena aperto non ha niente da perdere
+// Aperto con doppio clic su un file .carosello: carichiamo quel progetto. È già su disco, quindi conta come salvato.
+// (carica() ha già messo da parte l'eventuale lavoro non salvato dell'ultima volta: lo ritrovi in File → Recupera.)
+let apertoDaFile = null;
+if (window.PROGETTO_DA_APRIRE && window.PROGETTO_DA_APRIRE.slide && window.PROGETTO_DA_APRIRE.slide.length) {
+  stato = normalizza(window.PROGETTO_DA_APRIRE);
+  apertoDaFile = window.PROGETTO_DA_APRIRE_NOME || 'progetto';
+  segnaSalvato();
+}
+// tolto "?apri=1" dall'indirizzo: se ricarichi la pagina non si riapre di nuovo quel file
+try { if (/[?&]apri=1(&|$)/.test(location.search)) history.replaceState(null, '', location.pathname); } catch (e) { /* ok */ }
+$('#bRecupera').onclick = recuperaPrecedente;
+aggiornaBottoneRecupera();
+window.addEventListener('resize', adattaZoom);
+tutto();
+if (apertoDaFile) avviso('Aperto: ' + apertoDaFile + (appenaMessoDaParte ? '. Il lavoro non salvato dell\'ultima volta è in File → Recupera.' : ''));
+else if (appenaMessoDaParte) avviso('Ho tenuto da parte il lavoro dell\'ultima volta, che non era salvato in un file.', 'Recupera', recuperaPrecedente);
+</script>
+</body>
+</html>
