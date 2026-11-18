@@ -1,0 +1,7 @@
+# File di sistema del Mac, inutili per chiunque
+.DS_Store
+
+# Aiuto solo per macOS (doppio clic sui file .carosello): non serve per usare l'editor
+Apri in MiniCanva.app/
+apri_progetto.sh
+progetto_da_aprire.js
