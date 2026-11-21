@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Editor caroselli</title>
+<title>miniCanva</title>
 <script>
 /* Riconoscimento del telefono (messo qui, prima di tutto il resto, per non far vedere nemmeno per un attimo l'editor).
    L'editor è pensato per il computer: da telefono non è ancora adattato, quindi al suo posto si mostra la schermata
@@ -48,9 +48,43 @@ body { font-family:"Inter", -apple-system, "Helvetica Neue", Arial, sans-serif; 
 body::before { content:''; position:fixed; inset:0; background-image:var(--ui-grana); pointer-events:none; z-index:0; }
 header, main { position:relative; z-index:1; }
 
+/* =====================================================================
+   HOME: l'elenco dei progetti (si vede quando <body> ha la classe "inHome"; l'editor in quel caso è nascosto)
+   ===================================================================== */
+#home { display:none; flex:1; min-height:0; overflow-y:auto; position:relative; z-index:1; padding:clamp(28px,6vh,64px) clamp(24px,6vw,96px) 80px; }
+.inHome #home { display:block; }
+.inHome header, .inHome main { display:none; }
+#home .testata { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:clamp(28px,5vh,52px); }
+#home h1 { font-size:clamp(34px,5vw,52px); font-weight:800; letter-spacing:.02em; line-height:1; display:flex; align-items:center; }
+#home h1::before { content:''; width:12px; height:12px; border-radius:50%; background:var(--ui-acc); margin-right:18px; box-shadow:0 0 18px rgba(232,192,96,.75); }
+#home .conto { color:var(--ui-tenue); font-size:13px; margin-top:12px; margin-left:30px; }
+.griglia-home { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:34px 26px; }
+.scheda { position:relative; }
+.scheda .copertina { display:block; width:100%; aspect-ratio:4/5; padding:0; overflow:hidden; border-radius:6px; background:var(--ui-pan); border:1px solid var(--ui-bordo);
+  box-shadow:0 10px 30px rgba(0,0,0,.45); cursor:pointer; transition:border-color .15s, transform .15s, box-shadow .15s; }
+.scheda .copertina:hover, .scheda .copertina:focus-visible { border-color:var(--ui-acc); transform:translateY(-3px); box-shadow:0 16px 40px rgba(0,0,0,.55), 0 0 0 3px rgba(232,192,96,.14); }
+.scheda .copertina img { display:block; width:100%; height:100%; object-fit:cover; }
+.scheda .riga { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-top:12px; }
+.scheda .nome { font-size:13px; font-weight:600; color:var(--ui-testo); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:pointer; }
+.scheda .data { font-size:12px; color:var(--ui-tenue); white-space:nowrap; }
+.scheda input.nome { width:100%; font:inherit; font-size:13px; font-weight:600; color:var(--ui-testo); background:var(--ui-bg); border:1px solid var(--ui-acc); border-radius:6px; padding:3px 6px; outline:none; }
+.scheda .azioni { display:flex; gap:14px; margin-top:6px; opacity:0; transition:opacity .15s; }
+.scheda:hover .azioni, .scheda:focus-within .azioni { opacity:1; }
+.scheda .azioni button { background:none; border:0; padding:2px 0; font-size:12px; font-weight:600; color:var(--ui-tenue); border-radius:4px; }
+.scheda .azioni button:hover { background:none; color:var(--ui-testo); text-decoration:underline; }
+.scheda .azioni button.pericolo:hover { color:var(--ui-pericolo); }
+.scheda.nuova .copertina { background:transparent; border:1.5px dashed var(--ui-bordo-forte); box-shadow:none; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; color:var(--ui-tenue); }
+.scheda.nuova .copertina:hover, .scheda.nuova .copertina:focus-visible { color:var(--ui-acc); box-shadow:none; background:rgba(232,192,96,.05); }
+.scheda.nuova .piu { font-size:44px; font-weight:500; line-height:1; }
+.scheda.nuova .etichetta { font-size:13px; font-weight:600; }
+.scheda .vuota { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--ui-tenue); font-size:12px; padding:12px; text-align:center; }
+
 header { display:flex; align-items:center; gap:8px; padding:10px 16px; background:rgba(22,19,18,.62); backdrop-filter:blur(14px); border-bottom:1px solid var(--ui-bordo); flex-wrap:wrap; position:relative; z-index:20; }
-header h1 { font-size:16px; font-weight:800; letter-spacing:-.02em; margin-right:12px; display:flex; align-items:center; }
-header h1::before { content:''; width:9px; height:9px; border-radius:50%; background:var(--ui-acc); margin-right:10px; box-shadow:0 0 14px rgba(232,192,96,.75); }
+/* Nome del progetto in alto: sembra testo normale, e diventa un campo (bordo) quando ci passi sopra o ci scrivi. */
+#nomeProgetto { font:inherit; font-weight:800; font-size:15px; letter-spacing:-.02em; color:var(--ui-testo); background:transparent;
+  border:1px solid transparent; border-radius:var(--ui-raggio); padding:7px 10px; width:min(260px, 24vw); margin-right:8px; transition:border-color .15s, background .15s; }
+#nomeProgetto:hover { border-color:var(--ui-bordo); }
+#nomeProgetto:focus { outline:none; border-color:var(--ui-acc); background:var(--ui-bg); box-shadow:0 0 0 3px rgba(232,192,96,.18); }
 header .spazio { flex:1; }
 #stato { color:var(--ui-tenue); font-size:12px; min-width:90px; text-align:right; margin-right:4px; }
 
@@ -284,8 +318,18 @@ dialog h3 { margin-bottom:14px; font-size:18px; font-weight:800; letter-spacing:
   <p class="nota">(Se interessa a qualcuno potrei farlo andare anche da cellulare)</p>
 </div>
 
+<!-- HOME: l'elenco dei progetti, disegnato da disegnaHome() -->
+<section id="home" aria-label="Home">
+  <div class="testata">
+    <div><h1>HOME</h1><p class="conto" id="contoProgetti"></p></div>
+    <button id="bApriFileHome">Apri un file .carosello</button>
+  </div>
+  <div class="griglia-home" id="grigliaHome"></div>
+</section>
+
 <header>
-  <h1>Editor caroselli</h1>
+  <button id="bHome" title="Torna ai tuoi progetti">‹ Home</button>
+  <input id="nomeProgetto" type="text" maxlength="60" spellcheck="false" aria-label="Nome del progetto" placeholder="Nome del progetto">
   <button id="bTemplate" class="primario">+ Nuova slide</button>
   <button id="bUndo" title="Annulla (Ctrl/Cmd+Z)">Annulla</button>
   <span class="spazio"></span>
@@ -294,11 +338,10 @@ dialog h3 { margin-bottom:14px; font-size:18px; font-weight:800; letter-spacing:
   <div class="menu">
     <button id="mFile" aria-haspopup="true">File</button>
     <div class="tendina">
-      <button id="bNuovo">Nuovo progetto<small>riparti dalle 3 slide iniziali</small></button>
-      <button id="bRecupera" style="display:none">Recupera lavoro precedente<small>l'ultima volta non l'avevi salvato in un file</small></button>
+      <button id="bNuovo">Nuovo progetto<small>un carosello nuovo, questo resta nella Home</small></button>
       <hr>
-      <button id="bApri">Apri progetto<small>da un file .carosello (o .json) salvato</small></button>
-      <button id="bSalva">Salva progetto<small>scarica un file .carosello da tenere</small></button>
+      <button id="bApri">Apri un file<small>da un .carosello (o .json): si aggiunge alla Home</small></button>
+      <button id="bSalva">Scarica una copia<small>un file .carosello da tenere o da mandare a qualcuno</small></button>
     </div>
   </div>
   <div class="menu">
@@ -331,14 +374,13 @@ dialog h3 { margin-bottom:14px; font-size:18px; font-weight:800; letter-spacing:
   <div class="chiudi"><button id="chiudiImpostazioni" class="primario">Fatto</button></div>
 </dialog>
 
-<!-- finestra: il progetto attuale non è stato salvato in un file (si apre da "Nuovo progetto") -->
-<dialog id="dlgSalvare">
-  <h3>Questo progetto non è stato salvato</h3>
-  <p style="font-size:14px;line-height:1.5;margin-bottom:6px">Hai fatto modifiche che non sono in nessun file <b>.carosello</b>. Se riparti da zero le perdi (finché non chiudi la pagina le recuperi con "Annulla").</p>
+<!-- finestra: conferma prima di eliminare un progetto dalla Home (non si può tornare indietro) -->
+<dialog id="dlgElimina">
+  <h3>Eliminare questo progetto?</h3>
+  <p style="font-size:14px;line-height:1.5;margin-bottom:6px"><b id="nomeDaEliminare"></b> sparisce dalla Home e non si può recuperare. Se vuoi tenerne una copia, aprilo e usa File, Scarica una copia.</p>
   <div class="chiudi" style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
-    <button id="salvaAnnulla">Annulla</button>
-    <button id="salvaNonSalvare" class="pericolo">Non salvare</button>
-    <button id="salvaESegui" class="primario">Salva</button>
+    <button id="eliminaAnnulla">Annulla</button>
+    <button id="eliminaConferma" class="pericolo">Elimina</button>
   </div>
 </dialog>
 
@@ -569,7 +611,7 @@ const pilaUndo = [];        // copie precedenti del progetto, per "Annulla"
 let ultimoUndo = 0;
 const CHIAVE = 'editor-caroselli-v1';
 
-const slideCorrente = () => stato.slide[stato.corrente];
+const slideCorrente = () => stato?.slide[stato.corrente];
 const bloccoSelezionato = () => slideCorrente()?.blocchi.find(b => b.id === selezionato) || null;
 
 // ---------- Annulla ----------
@@ -592,8 +634,85 @@ function annulla() {
   tutto();
 }
 
-// ---------- Salvataggio automatico nel browser ----------
-let timerSalva = null;
+// ---------- Archivio dei progetti (la memoria del browser) ----------
+/* La Home mostra tanti progetti, quindi non basta più il piccolo cassetto "localStorage" (circa 5 MB per tutto il sito):
+   si usa IndexedDB, che è un vero armadio (centinaia di MB). Ogni progetto sta in due scomparti:
+     "indice"  una riga leggera per la Home: id, nome, date e anteprima (la miniatura della prima slide)
+     "dati"    il progetto intero, con le sue immagini
+   Così la Home si apre subito, senza caricare le foto di tutti i progetti.
+   Tutto resta nel browser di chi usa il sito: non parte mai verso internet. Se il browser non permette di scrivere
+   (succede in navigazione privata), si lavora solo in memoria finché la pagina è aperta, e si avvisa. */
+const archivio = (() => {
+  const NOME_DB = 'minicanva', VERSIONE_DB = 1;
+  let db = null, soloMemoria = false;
+  const inMemoria = { indice: new Map(), dati: new Map() };
+  const attendi = richiesta => new Promise((ok, ko) => { richiesta.onsuccess = () => ok(richiesta.result); richiesta.onerror = () => ko(richiesta.error); });
+  const finita = t => new Promise((ok, ko) => { t.oncomplete = () => ok(); t.onerror = () => ko(t.error); t.onabort = () => ko(t.error); });
+  async function apri() {
+    try {
+      db = await new Promise((ok, ko) => {
+        const r = indexedDB.open(NOME_DB, VERSIONE_DB);
+        r.onupgradeneeded = () => { r.result.createObjectStore('indice', { keyPath:'id' }); r.result.createObjectStore('dati', { keyPath:'id' }); };
+        r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); r.onblocked = () => ko(new Error('archivio bloccato'));
+      });
+      try { navigator.storage?.persist?.(); } catch (e) { /* è solo una richiesta di cortesia al browser */ }   // chiede di non cancellare questi dati se manca spazio
+    } catch (e) { soloMemoria = true; }
+    return !soloMemoria;
+  }
+  async function elenco() {
+    const tutti = soloMemoria ? [...inMemoria.indice.values()] : await attendi(db.transaction('indice').objectStore('indice').getAll());
+    return tutti.sort((a, b) => b.modificato - a.modificato);   // i più recenti per primi
+  }
+  async function leggi(id) {
+    if (soloMemoria) return inMemoria.dati.get(id)?.stato || null;
+    const r = await attendi(db.transaction('dati').objectStore('dati').get(id));
+    return r ? r.stato : null;
+  }
+  // Scrive la riga dell'indice e, se c'è, il progetto intero. Con statoProgetto = null aggiorna solo l'indice (nome, anteprima).
+  async function scrivi(voceIndice, statoProgetto) {
+    if (soloMemoria) { inMemoria.indice.set(voceIndice.id, { ...voceIndice }); if (statoProgetto) inMemoria.dati.set(voceIndice.id, { id:voceIndice.id, stato:statoProgetto }); return; }
+    const t = db.transaction(statoProgetto ? ['indice', 'dati'] : ['indice'], 'readwrite');
+    t.objectStore('indice').put({ ...voceIndice });
+    if (statoProgetto) t.objectStore('dati').put({ id:voceIndice.id, stato:statoProgetto });
+    await finita(t);
+  }
+  async function elimina(id) {
+    if (soloMemoria) { inMemoria.indice.delete(id); inMemoria.dati.delete(id); return; }
+    const t = db.transaction(['indice', 'dati'], 'readwrite');
+    t.objectStore('indice').delete(id); t.objectStore('dati').delete(id);
+    await finita(t);
+  }
+  async function crea(nome, statoProgetto) {
+    const ora = Date.now();
+    const voceIndice = { id: uid(), nome, creato: ora, modificato: ora, anteprima: null };
+    await scrivi(voceIndice, statoProgetto);
+    return voceIndice;
+  }
+  return { apri, elenco, leggi, scrivi, elimina, crea, soloMemoria: () => soloMemoria };
+})();
+
+// Nome che non esiste ancora nella Home: "Nuovo carosello", poi "Nuovo carosello 2", "Nuovo carosello 3"...
+async function nomeLibero(base) {
+  const usati = new Set((await archivio.elenco()).map(v => v.nome));
+  if (!usati.has(base)) return base;
+  let n = 2; while (usati.has(base + ' ' + n)) n++;
+  return base + ' ' + n;
+}
+
+// ---------- Salvataggio automatico del progetto aperto ----------
+// L'ordine dei campi può cambiare dopo il caricamento (stesso contenuto, altra sequenza): li ordiniamo prima di confrontare.
+const ordinaChiavi = v => Array.isArray(v) ? v.map(ordinaChiavi)
+  : (v && typeof v === 'object') ? Object.fromEntries(Object.keys(v).sort().map(k => [k, ordinaChiavi(v[k])])) : v;
+// "Impronta" del contenuto: gli id casuali di slide ed elementi non contano, e nemmeno quale slide hai selezionato.
+// Serve a salvare solo quando è cambiato qualcosa (aprire un progetto senza toccarlo non lo fa salire in cima alla Home).
+const improntaDi = p => JSON.stringify(ordinaChiavi({ impostazioni: p.impostazioni, slide: p.slide })).replace(/"id":"[^"]*"/g, '');
+const improntaAnteprima = () => JSON.stringify({ s: stato.slide[0], i: stato.impostazioni });   // cambia solo se cambia ciò che si vede nella miniatura
+
+let voce = null;             // la riga dell'indice del progetto aperto (id, nome, date, anteprima)
+let improntaUltima = null;   // com'era il progetto all'ultimo salvataggio
+let anteprimaPer = null;     // per quale contenuto è stata fatta l'ultima miniatura
+let timerSalva = null, timerAnteprima = null;
+
 // Copia del progetto da salvare: tiene solo le immagini che servono davvero (logo, sfondo e foto presenti nelle slide).
 // Le foto sostituite o tolte restavano nel file e lo gonfiavano (anche a 10 MB); in memoria restano finché non chiudi,
 // così "Annulla" può ancora riportarle indietro.
@@ -604,61 +723,41 @@ function statoPerSalvare() {
   for (const [id, dati] of Object.entries(stato.immagini)) if (usate.has(id)) immagini[id] = dati;
   return { ...stato, immagini };
 }
-function salvaAuto() {
-  clearTimeout(timerSalva);
-  timerSalva = setTimeout(() => {
-    try { localStorage.setItem(CHIAVE, JSON.stringify(statoPerSalvare())); $('#stato').textContent = 'Salvato nel browser'; }
-    catch (e) { $('#stato').textContent = 'Spazio pieno: usa "Salva progetto"'; }
-  }, 400);
-}
-// Ogni volta che apri l'editor si parte dal preset (le 3 slide iniziali).
-// Se l'ultima volta avevi lavoro che non era salvato in un file .json, non lo buttiamo: lo mettiamo da parte
-// (CHIAVE_PREC) e ti offriamo di recuperarlo, con un avviso e col pulsante "Recupera lavoro precedente".
-const CHIAVE_PREC = CHIAVE + '-precedente';
-let appenaMessoDaParte = false;
-function carica() {
+async function salvaProgettoCorrente() {
+  if (!stato || !voce) return;
+  const impr = improntaDi(stato);
+  if (impr === improntaUltima) return;           // niente di nuovo da salvare
+  voce.modificato = Date.now();
   try {
-    const raw = localStorage.getItem(CHIAVE);
-    if (raw) {
-      const v = JSON.parse(raw);
-      if (v && v.slide && v.slide.length) {
-        const prec = normalizza(v);
-        const impr = improntaDi(prec);
-        // c'è qualcosa da perdere solo se differisce sia dall'ultimo salvataggio su file sia dal preset intatto
-        if (impr !== improntaSalvata && impr !== improntaDi(progettoIniziale())) {
-          try { localStorage.setItem(CHIAVE_PREC, raw); appenaMessoDaParte = true; }
-          catch (e) { return prec; }   // niente spazio per la copia: meglio riaprire il lavoro che rischiare di perderlo
-        }
-      }
-    }
-  } catch (e) { /* se il salvataggio è rovinato si riparte dal preset */ }
-  return progettoIniziale();
+    await archivio.scrivi(voce, statoPerSalvare());
+    improntaUltima = impr;
+    $('#stato').textContent = archivio.soloMemoria() ? 'Non salvato: scarica una copia' : 'Salvato nel browser';
+  } catch (e) { $('#stato').textContent = 'Spazio pieno: scarica una copia'; }
 }
-function lavoroPrecedente() {
-  try { const raw = localStorage.getItem(CHIAVE_PREC); if (raw) { const v = JSON.parse(raw); if (v && v.slide && v.slide.length) return v; } } catch (e) { /* niente da recuperare */ }
-  return null;
+// La miniatura della Home è la prima slide, disegnata in piccolo. Si rifà solo se è cambiato ciò che si vede nella prima slide.
+async function aggiornaAnteprima() {
+  if (!stato || !voce) return;
+  const impr = improntaAnteprima();
+  if (impr === anteprimaPer) return;
+  const questa = voce;                           // se nel frattempo apri un altro progetto, non scriviamo nel posto sbagliato
+  try {
+    const c = await slideInCanvas(0, 0.3);       // 30% di 1080×1350: circa 324×405 pixel, basta per una scheda
+    if (voce !== questa) return;
+    questa.anteprima = c.toDataURL('image/jpeg', 0.82);
+    anteprimaPer = impr;
+    await archivio.scrivi(questa, null);         // solo l'indice: il progetto intero non si riscrive per una miniatura
+  } catch (e) { /* senza miniatura la scheda resta vuota, non è un problema */ }
 }
-function aggiornaBottoneRecupera() {
-  const c = !!lavoroPrecedente();
-  $('#bRecupera').style.display = c ? '' : 'none';
-  $('#mFile').classList.toggle('avvisa', c);   // pallino arancio sul menu File: c'è un lavoro da recuperare
+function salvaAuto() {
+  clearTimeout(timerSalva); clearTimeout(timerAnteprima);
+  timerSalva = setTimeout(salvaProgettoCorrente, 400);
+  timerAnteprima = setTimeout(aggiornaAnteprima, 2500);   // più lenta: disegnare la miniatura costa di più e mentre scrivi non serve
 }
-function recuperaPrecedente() {
-  const v = lavoroPrecedente(); if (!v) return;
-  let copia = null; try { copia = localStorage.getItem(CHIAVE_PREC); } catch (e) { /* ok */ }
-  preparaUndo(true);
-  const immaginiAttuali = stato.immagini;
-  stato = normalizza(v);
-  stato.immagini = { ...immaginiAttuali, ...stato.immagini };   // teniamo anche le attuali, così "Annulla" non perde niente
-  selezionato = null; tutto();
-  try { localStorage.removeItem(CHIAVE_PREC); } catch (e) { /* ok */ }
-  aggiornaBottoneRecupera();
-  avviso('Lavoro precedente recuperato.', 'Annulla', () => {
-    annulla();
-    // se annulli, il lavoro precedente torna "da parte", così non si perde
-    try { if (copia) localStorage.setItem(CHIAVE_PREC, copia); } catch (e) { /* ok */ }
-    aggiornaBottoneRecupera();
-  });
+// Prima di lasciare il progetto (torni alla Home, ne apri un altro) si salva tutto subito, senza aspettare i timer.
+async function salvaSubito() {
+  clearTimeout(timerSalva); clearTimeout(timerAnteprima);
+  await salvaProgettoCorrente();
+  await aggiornaAnteprima();
 }
 // Completa un progetto vecchio o incompleto con i valori mancanti
 function normalizza(v) {
@@ -1462,6 +1561,7 @@ $('#tela').addEventListener('dblclick', e => {
   window.addEventListener('drop', e => {
     if (!haFile(e)) return;
     e.preventDefault(); pulisci();
+    if (!stato) return;   // in Home non c'è nessuna slide dove lasciare l'immagine
     const files = [...e.dataTransfer.files].filter(eImmagine);
     if (!e.dataTransfer.files.length) return;
     if (!files.length) { avviso('Il file trascinato non è un\'immagine.'); return; }
@@ -1627,77 +1727,163 @@ function disegnaImpostazioni() {
     h('button', { onclick: () => { preparaUndo(true); avviso('Colori di partenza rimessi.', 'Annulla', () => { annulla(); disegnaImpostazioni(); }); const { logo, sfondoImg, logoLarg, sfondoVelo } = I; stato.impostazioni = { ...clona(IMPOSTAZIONI_DEFAULT), logo, sfondoImg, logoLarg, sfondoVelo }; disegnaImpostazioni(); disegnaTela(); disegnaMiniature(); salvaAuto(); } }, 'Ripristina i colori di partenza')));
 }
 
-// ----- salva / apri progetto (file .carosello che puoi tenere dove vuoi; dentro è un normale JSON) -----
+// ----- scarica una copia / apri un file (.carosello: dentro è un normale JSON) -----
+// I progetti vivono nella Home (nel browser). Il file serve per fare una copia di sicurezza o per mandare un carosello a qualcuno.
 function scarica(blob, nome) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome;
   document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
-// ----- controllo "hai salvato?" -----
-// Confrontiamo il progetto di adesso con quello che avevamo l'ultima volta che l'hai salvato (o aperto) da file.
-// Gli id casuali di slide ed elementi non contano, e nemmeno quale slide hai selezionato: conta solo il contenuto.
-const CHIAVE_FILE = CHIAVE + '-salvato';
-// L'ordine dei campi può cambiare dopo il caricamento (stesso contenuto, altra sequenza): li ordiniamo prima di confrontare.
-const ordinaChiavi = v => Array.isArray(v) ? v.map(ordinaChiavi)
-  : (v && typeof v === 'object') ? Object.fromEntries(Object.keys(v).sort().map(k => [k, ordinaChiavi(v[k])])) : v;
-const improntaDi = p => JSON.stringify(ordinaChiavi({ impostazioni: p.impostazioni, slide: p.slide })).replace(/"id":"[^"]*"/g, '');
-// Se non sappiamo nulla (prima volta), il progetto di partenza intatto conta come "salvato": non c'è niente da perdere.
-let improntaSalvata = (() => {
-  try { const x = localStorage.getItem(CHIAVE_FILE); if (x) return x; } catch (e) { /* si usa quello di partenza */ }
-  return improntaDi(progettoIniziale());
-})();
-function segnaSalvato() {
-  improntaSalvata = improntaDi(stato);
-  try { localStorage.setItem(CHIAVE_FILE, improntaSalvata); } catch (e) { /* resta valido finché la pagina è aperta */ }
+// Il nome del progetto diventa il nome del file, tolti i caratteri che i sistemi non accettano nei nomi dei file.
+const nomeFile = () => (voce?.nome || 'progetto').replace(/[\\/:*?"<>|]+/g, '-').trim() || 'progetto';
+function scaricaCopia() {
+  scarica(new Blob([JSON.stringify(statoPerSalvare())], { type:'application/octet-stream' }), nomeFile() + '.carosello');   // octet-stream: così il browser non cambia l'estensione
 }
-const cisonoModificheNonSalvate = () => improntaDi(stato) !== improntaSalvata;
+$('#bSalva').onclick = scaricaCopia;
 
-function salvaProgetto() {
-  scarica(new Blob([JSON.stringify(statoPerSalvare())], { type:'application/octet-stream' }), 'progetto.carosello');   // octet-stream: così il browser non cambia l'estensione
-  segnaSalvato();
-}
-$('#bSalva').onclick = salvaProgetto;
-$('#bApri').onclick = () => $('#fileProgetto').click();
+// ----- Home: aprire, creare, rinominare, duplicare, eliminare -----
+// Quale progetto è aperto lo dice l'indirizzo: ".../editor.html#p=<id>" è un progetto, senza nulla (o "#home") è la Home.
+// Così il tasto "indietro" del browser funziona e, ricaricando la pagina, resti dove eri.
+const apriProgettoConId = id => { location.hash = '#p=' + id; };
 
-// Riparte dalle 3 slide del preset. Il lavoro attuale si recupera con "Annulla" nell'avviso, finché non chiudi la pagina.
-function nuovoProgetto() {
-  preparaUndo(true);
-  const improntaPrima = improntaSalvata;   // se poi premi "Annulla", torna anche lo stato "salvato / non salvato" di prima
-  const vecchio = stato.immagini;
-  stato = progettoIniziale();
-  Object.assign(stato.immagini, vecchio);   // teniamo in memoria le foto vecchie, così "Annulla" le ritrova
-  selezionato = null;
-  tutto();
-  segnaSalvato();                           // un progetto appena creato non ha niente da perdere
-  avviso('Nuovo progetto: ripartito dalle 3 slide iniziali.', 'Annulla', () => {
-    annulla();
-    improntaSalvata = improntaPrima;
-    try { localStorage.setItem(CHIAVE_FILE, improntaPrima); } catch (e) { /* ok */ }
-  });
+async function nuovoProgetto() {
+  const nuovo = await archivio.crea(await nomeLibero('Nuovo carosello'), progettoIniziale());
+  apriProgettoConId(nuovo.id);
 }
-$('#bNuovo').onclick = () => {
-  if (!cisonoModificheNonSalvate()) { nuovoProgetto(); return; }
-  $('#dlgSalvare').showModal();             // ci sono modifiche non salvate: chiediamo prima
-};
-$('#salvaAnnulla').onclick = () => $('#dlgSalvare').close();
-$('#salvaNonSalvare').onclick = () => { $('#dlgSalvare').close(); nuovoProgetto(); };
-$('#salvaESegui').onclick = () => { salvaProgetto(); $('#dlgSalvare').close(); nuovoProgetto(); };
-$('#fileProgetto').onchange = async e => {
+$('#bNuovo').onclick = nuovoProgetto;
+
+// Un file .carosello diventa un progetto nuovo della Home (non sostituisce niente) e si apre subito.
+async function importaProgetto(progetto, nome) {
+  const nuovo = await archivio.crea(await nomeLibero(nome || 'Progetto importato'), progetto);
+  apriProgettoConId(nuovo.id);
+}
+const selettoreFile = $('#fileProgetto');
+$('#bApri').onclick = () => selettoreFile.click();
+$('#bApriFileHome').onclick = () => selettoreFile.click();
+selettoreFile.onchange = async e => {
   const f = e.target.files[0]; if (!f) return;
   try {
     const v = JSON.parse(await f.text());
     if (!v.slide || !v.slide.length) throw new Error('file non valido');
-    preparaUndo(true); stato = normalizza(v); selezionato = null; tutto(); segnaSalvato();   // il file aperto è già su disco
+    await importaProgetto(normalizza(v), f.name.replace(/\.(carosello|json)$/i, ''));
   } catch (err) { avviso('Non riesco ad aprire questo file: ' + err.message); }
   e.target.value = '';
 };
 
+const dataBreve = ms => {
+  const d = new Date(ms), conAnno = d.getFullYear() !== new Date().getFullYear();
+  return d.toLocaleDateString('it-IT', conAnno ? { day:'numeric', month:'short', year:'numeric' } : { day:'numeric', month:'short' });
+};
+function schedaProgetto(v) {
+  const apri = () => apriProgettoConId(v.id);
+  const nome = h('span', { class:'nome', title:v.nome, onclick:apri }, v.nome);
+  return h('div', { class:'scheda' },
+    h('button', { class:'copertina', onclick:apri, 'aria-label':'Apri ' + v.nome },
+      v.anteprima ? h('img', { src:v.anteprima, alt:'' }) : h('span', { class:'vuota' }, 'Anteprima non disponibile')),
+    h('div', { class:'riga' }, nome, h('span', { class:'data' }, dataBreve(v.modificato))),
+    h('div', { class:'azioni' },
+      h('button', { onclick: () => rinominaInHome(v, nome) }, 'Rinomina'),
+      h('button', { onclick: () => duplicaProgetto(v) }, 'Duplica'),
+      h('button', { class:'pericolo', onclick: () => chiediElimina(v) }, 'Elimina')));
+}
+async function disegnaHome() {
+  const elenco = await archivio.elenco();
+  const griglia = $('#grigliaHome'); griglia.innerHTML = '';
+  $('#contoProgetti').textContent = elenco.length === 1 ? '1 progetto' : elenco.length + ' progetti';
+  griglia.append(h('div', { class:'scheda nuova' },
+    h('button', { class:'copertina', onclick:nuovoProgetto },
+      h('span', { class:'piu' }, '+'), h('span', { class:'etichetta' }, 'Nuovo progetto'))));
+  elenco.forEach(v => griglia.append(schedaProgetto(v)));
+}
+// Rinomina: il nome diventa un campo di testo. Invio o clic fuori conferma, Esc annulla.
+function rinominaInHome(v, elNome) {
+  const campo = h('input', { class:'nome', type:'text', value:v.nome, maxlength:'60', 'aria-label':'Nuovo nome' });
+  elNome.replaceWith(campo); campo.focus(); campo.select();
+  let chiuso = false;
+  const chiudi = async conferma => {
+    if (chiuso) return; chiuso = true;
+    const nuovo = campo.value.trim();
+    if (conferma && nuovo && nuovo !== v.nome) { v.nome = nuovo; await archivio.scrivi(v, null); }
+    await disegnaHome();
+  };
+  campo.addEventListener('keydown', e => { if (e.key === 'Enter') chiudi(true); else if (e.key === 'Escape') chiudi(false); });
+  campo.addEventListener('blur', () => chiudi(true));
+}
+async function duplicaProgetto(v) {
+  const dati = await archivio.leggi(v.id); if (!dati) return;
+  const copia = await archivio.crea(await nomeLibero(v.nome + ' (copia)'), dati);
+  if (v.anteprima) { copia.anteprima = v.anteprima; await archivio.scrivi(copia, null); }
+  await disegnaHome();
+}
+// Eliminare non si può annullare: prima si chiede conferma.
+let daEliminare = null;
+function chiediElimina(v) { daEliminare = v; $('#nomeDaEliminare').textContent = '«' + v.nome + '»'; $('#dlgElimina').showModal(); }
+$('#eliminaAnnulla').onclick = () => { daEliminare = null; $('#dlgElimina').close(); };
+$('#eliminaConferma').onclick = async () => {
+  const v = daEliminare; daEliminare = null; $('#dlgElimina').close();
+  if (!v) return;
+  await archivio.elimina(v.id); await disegnaHome(); avviso('Progetto eliminato.');
+};
+
+// ----- nell'editor: tornare alla Home e rinominare il progetto aperto -----
+$('#bHome').onclick = () => { location.hash = '#home'; };
+$('#nomeProgetto').addEventListener('change', async e => {
+  if (!voce) return;
+  const nuovo = e.target.value.trim() || 'Senza titolo';
+  e.target.value = nuovo; voce.nome = nuovo; document.title = nuovo + ' · miniCanva';
+  await archivio.scrivi(voce, null);
+});
+$('#nomeProgetto').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
+
+// ----- cambio di schermata (Home <-> editor), guidato dall'indirizzo -----
+async function apriProgetto(id, mia) {
+  const trovata = (await archivio.elenco()).find(v => v.id === id);
+  const dati = trovata ? await archivio.leggi(id) : null;
+  if (mia !== seqInstrada) return;                 // nel frattempo l'indirizzo è cambiato ancora
+  if (!trovata || !dati || !dati.slide || !dati.slide.length) { avviso('Questo progetto non c\'è più.'); location.hash = '#home'; return; }
+  voce = trovata; stato = normalizza(dati); selezionato = null; pilaUndo.length = 0;
+  improntaUltima = improntaDi(stato);              // appena aperto non c'è niente da salvare
+  anteprimaPer = voce.anteprima ? improntaAnteprima() : null;   // senza miniatura, la si fa dopo pochi secondi
+  $('#nomeProgetto').value = voce.nome; $('#stato').textContent = '';
+  document.title = voce.nome + ' · miniCanva';
+  document.body.classList.remove('inHome');        // prima si mostra l'editor, poi si disegna: adattaZoom misura la zona della slide
+  tutto(); adattaZoom();
+}
+async function chiudiProgetto() {
+  await salvaSubito();
+  stato = null; voce = null; selezionato = null; pilaUndo.length = 0;
+}
+async function mostraHome() {
+  document.body.classList.add('inHome');
+  document.title = 'miniCanva';
+  await disegnaHome();
+}
+let seqInstrada = 0;
+async function instrada() {
+  const mia = ++seqInstrada;
+  const m = /^#p=(.+)$/.exec(location.hash);
+  if (stato && voce) {
+    if (m && m[1] === voce.id) return;             // è già questo il progetto aperto
+    await chiudiProgetto();                        // si lascia il progetto: prima si salva
+    if (mia !== seqInstrada) return;
+  }
+  if (m) await apriProgetto(m[1], mia); else await mostraHome();
+}
+
 // ----- esporta PNG -----
-async function slideInCanvas(i) {
+// Disegna la slide i in un'immagine. "fattore" 1 = 1080×1350 (esportazione), 0.3 = miniatura per la Home.
+// Le richieste si mettono in coda una dietro l'altra: usano tutte lo stesso contenitore nascosto (#fuori), non devono pestarsi i piedi.
+let codaCanvas = Promise.resolve();
+function slideInCanvas(i, fattore = 1) {
+  const risultato = codaCanvas.then(() => disegnaInCanvas(i, fattore));
+  codaCanvas = risultato.catch(() => {});
+  return risultato;
+}
+async function disegnaInCanvas(i, fattore) {
   await document.fonts.ready;
   const fuori = $('#fuori'); fuori.innerHTML = '';
   const el = renderSlide(stato.slide[i], i, { anteprima:false });   // niente segnaposto né selezione
   fuori.append(el);
-  const c = await html2canvas(el, { scale:1, width:1080, height:1350, backgroundColor:null, useCORS:true, logging:false });
+  const c = await html2canvas(el, { scale:fattore, width:1080, height:1350, backgroundColor:null, useCORS:true, logging:false });
   fuori.innerHTML = '';
   return c;
 }
@@ -1724,24 +1910,44 @@ $('#bZip').onclick = async () => {
 };
 
 // ----- avvio -----
-stato = carica();
-if (improntaDi(stato) === improntaDi(progettoIniziale())) segnaSalvato();   // il preset appena aperto non ha niente da perdere
-// Aperto con doppio clic su un file .carosello: carichiamo quel progetto. È già su disco, quindi conta come salvato.
-// (carica() ha già messo da parte l'eventuale lavoro non salvato dell'ultima volta: lo ritrovi in File → Recupera.)
-let apertoDaFile = null;
-if (window.PROGETTO_DA_APRIRE && window.PROGETTO_DA_APRIRE.slide && window.PROGETTO_DA_APRIRE.slide.length) {
-  stato = normalizza(window.PROGETTO_DA_APRIRE);
-  apertoDaFile = window.PROGETTO_DA_APRIRE_NOME || 'progetto';
-  segnaSalvato();
+// Dei progetti salvati con la vecchia versione (un solo progetto nel cassetto "localStorage") ne facciamo due schede della Home,
+// una volta sola. I dati vecchi restano dove sono (non si cancella niente). Il progetto di partenza non toccato non si importa.
+async function migraDaLocalStorage() {
+  if (archivio.soloMemoria()) return;
+  try {
+    if (localStorage.getItem(CHIAVE + '-migrato')) return;
+    const viste = new Set([improntaDi(progettoIniziale())]);
+    const importa = async (chiave, nome) => {
+      const raw = localStorage.getItem(chiave); if (!raw) return;
+      const v = JSON.parse(raw); if (!v || !v.slide || !v.slide.length) return;
+      const p = normalizza(v), impr = improntaDi(p);
+      if (viste.has(impr)) return;
+      viste.add(impr);
+      await archivio.crea(await nomeLibero(nome), p);
+    };
+    await importa(CHIAVE, 'Il mio carosello');
+    await importa(CHIAVE + '-precedente', 'Lavoro precedente');
+    localStorage.setItem(CHIAVE + '-migrato', '1');
+  } catch (e) { /* niente da portare: si parte da una Home vuota */ }
 }
-// tolto "?apri=1" dall'indirizzo: se ricarichi la pagina non si riapre di nuovo quel file
-try { if (/[?&]apri=1(&|$)/.test(location.search)) history.replaceState(null, '', location.pathname); } catch (e) { /* ok */ }
-$('#bRecupera').onclick = recuperaPrecedente;
-aggiornaBottoneRecupera();
 window.addEventListener('resize', adattaZoom);
-tutto();
-if (apertoDaFile) avviso('Aperto: ' + apertoDaFile + (appenaMessoDaParte ? '. Il lavoro non salvato dell\'ultima volta è in File → Recupera.' : ''));
-else if (appenaMessoDaParte) avviso('Ho tenuto da parte il lavoro dell\'ultima volta, che non era salvato in un file.', 'Recupera', recuperaPrecedente);
+// Se chiudi la scheda del browser subito dopo una modifica, il salvataggio "ritardato" non è ancora partito: lo facciamo adesso.
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { clearTimeout(timerSalva); salvaProgettoCorrente(); } });
+
+(async function avvia() {
+  const memoriaOk = await archivio.apri();
+  if (memoriaOk) await migraDaLocalStorage();
+  // Aperto con doppio clic su un file .carosello (apri_progetto.sh): diventa un progetto nuovo della Home e si apre subito.
+  if (window.PROGETTO_DA_APRIRE && window.PROGETTO_DA_APRIRE.slide && window.PROGETTO_DA_APRIRE.slide.length) {
+    const nome = String(window.PROGETTO_DA_APRIRE_NOME || 'Progetto').replace(/\.(carosello|json)$/i, '');
+    const nuovo = await archivio.crea(await nomeLibero(nome), normalizza(window.PROGETTO_DA_APRIRE));
+    // tolto "?apri=1" dall'indirizzo e messo l'id del progetto: se ricarichi la pagina non si riapre di nuovo il file
+    history.replaceState(null, '', location.pathname + '#p=' + nuovo.id);
+  } else if (/[?&]apri=1(&|$)/.test(location.search)) history.replaceState(null, '', location.pathname + location.hash);
+  window.addEventListener('hashchange', instrada);
+  await instrada();
+  if (!memoriaOk) avviso('Questo browser non permette di salvare i progetti (succede in navigazione privata). Usa File, Scarica una copia.');
+})();
 </script>
 </body>
 </html>
